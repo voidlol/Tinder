@@ -1,4 +1,4 @@
-package ru.liga.cache;
+package ru.liga.client.cache;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

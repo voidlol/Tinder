@@ -1,4 +1,4 @@
-package ru.liga.cache;
+package ru.liga.client.cache;
 
 
 import org.springframework.stereotype.Component;

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.liga.botstate.BotState;
-import ru.liga.cache.UserDetailsCache;
+import ru.liga.client.cache.UserDetailsCache;
 import ru.liga.domain.Profile;
 import ru.liga.domain.User;
 

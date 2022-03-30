@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
-import ru.liga.cache.UserSessionCache;
+import ru.liga.client.cache.UserSessionCache;
 
 @Component
 public class AuthorizationService {
