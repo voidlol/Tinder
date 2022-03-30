@@ -4,23 +4,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.liga.botstate.BotState;
 import ru.liga.client.ApiConsumer;
+import ru.liga.client.registration.RegistrationClient;
+import ru.liga.client.registration.UserClient;
 import ru.liga.domain.User;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 @Component
 public class UserDetailsCache {
     private Map<Long, BotState> userState = new HashMap<>();
-    private Set<Long> registeredUsers = new HashSet<>();
+    private final UserClient userClient;
     private Map<Long, User> userAccounts = new HashMap<>();
-    private final ApiConsumer apiConsumer;
+    private final RegistrationClient registerClient;
 
     @Autowired
-    public UserDetailsCache(ApiConsumer apiConsumer) {
-        this.apiConsumer = apiConsumer;
+    public UserDetailsCache(UserClient userClient, RegistrationClient registerClient) {
+        this.userClient = userClient;
+        this.registerClient = registerClient;
     }
 
     public User getUser(Long id) {
@@ -32,7 +33,7 @@ public class UserDetailsCache {
     }
 
     public boolean isRegistered(Long id) {
-        return registeredUsers.contains(id);
+        return userClient.getAllUserIds().contains(id);
     }
 
     public BotState getCurrentBotState(Long id) {
@@ -40,8 +41,7 @@ public class UserDetailsCache {
     }
 
     public void registerUser(Long id) {
-        apiConsumer.registerUser(userAccounts.get(id));
-        registeredUsers.add(id);
+        registerClient.registerUser(userAccounts.get(id));
     }
 
     public void changeUserState(Long id, BotState state) {

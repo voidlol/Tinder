@@ -5,6 +5,7 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import ru.liga.botapi.TelegramFacade;
 import ru.liga.botapi.TinderBot;
@@ -38,4 +39,5 @@ public class BotConfig {
 
         return tinderBot;
     }
+
 }

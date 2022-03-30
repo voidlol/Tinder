@@ -1,5 +1,6 @@
 package ru.liga.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,5 +10,6 @@ public class User {
 
     private Long id;
     private String password;
+    @JsonProperty("applicationId")
     private Profile profile;
 }

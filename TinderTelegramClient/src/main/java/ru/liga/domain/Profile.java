@@ -9,8 +9,11 @@ import java.util.Set;
 @Getter
 public class Profile {
 
+    private Long id;
     private String name;
     private String description;
-    private SexType gender;
+    private SexType sexType;
     private Set<SexType> lookingFor;
+    private Set<Profile> whoLikedUs;
+    private Set<Profile> whomILiked;
 }
