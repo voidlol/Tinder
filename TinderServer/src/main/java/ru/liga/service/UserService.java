@@ -8,6 +8,9 @@ import org.springframework.stereotype.Component;
 import ru.liga.domain.User;
 import ru.liga.repo.UserRepository;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -44,5 +47,11 @@ public class UserService {
             currentUser.setPassword(passwordEncoder.encode(password.getValue()));
             userRepository.save(currentUser);
         }
+    }
+
+    public List<User> getAllUsers() {
+        List<User> users = new ArrayList<>();
+        userRepository.findAll().forEach(users::add);
+        return users;
     }
 }

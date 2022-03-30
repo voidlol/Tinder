@@ -20,8 +20,13 @@ public class ApplicationController {
     }
 
     @PostMapping("/like/{target}")
-    public void likeUser(@PathVariable User target) {
+    public void likeUser(@PathVariable Application target) {
         applicationService.likeUser(target);
+    }
+
+    @GetMapping("/")
+    public Application getUserApplication() {
+        return applicationService.getUserApplication();
     }
 
     @GetMapping("/whoLikedUs")

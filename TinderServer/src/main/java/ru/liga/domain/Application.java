@@ -13,7 +13,7 @@ import java.util.Set;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = {"whomILiked", "whoLikedUs"})
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
@@ -31,14 +31,14 @@ public class Application {
     @Enumerated(EnumType.STRING)
     private Set<SexType> lookingFor;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany()
     @JoinTable(name = "applications_likes",
             joinColumns = {@JoinColumn(name = "whom_i_liked")},
             inverseJoinColumns = {@JoinColumn(name = "who_liked_me")}
     )
     private Set<Application> whomILiked = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany()
     @JoinTable(name = "applications_likes",
             joinColumns = {@JoinColumn(name = "who_liked_me")},
             inverseJoinColumns = {@JoinColumn(name = "whom_i_liked")}

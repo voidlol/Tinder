@@ -3,9 +3,12 @@ package ru.liga.api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.liga.domain.User;
+import ru.liga.dto.UserDTO;
 import ru.liga.service.UserService;
 
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -34,4 +37,11 @@ public class UserController {
         userService.updatePassword(password);
     }
 
+    @GetMapping("/all")
+    public Set<Long> getAllUsers() {
+        return userService.getAllUsers().stream()
+                .map(User::getId)
+                .collect(Collectors.toSet());
+
+    }
 }

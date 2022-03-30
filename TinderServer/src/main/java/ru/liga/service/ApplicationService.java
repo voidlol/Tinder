@@ -22,10 +22,9 @@ public class ApplicationService {
         this.userService = userService;
     }
 
-
-    public void likeUser(User target) {
+    public void likeUser(Application target) {
         User current = userService.getCurrentUser();
-        current.getApplicationId().getWhomILiked().add(target.getApplicationId());
+        current.getApplicationId().getWhomILiked().add(target);
         applicationRepository.save(current.getApplicationId());
     }
 
@@ -49,5 +48,9 @@ public class ApplicationService {
         }
         applications.remove(userApplication);
         return applications;
+    }
+
+    public Application getUserApplication() {
+        return userService.getCurrentUser().getApplicationId();
     }
 }

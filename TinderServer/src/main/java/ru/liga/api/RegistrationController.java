@@ -16,7 +16,7 @@ public class RegistrationController {
         this.userService = userService;
     }
 
-    @PostMapping
+    @PostMapping()
     public void register(@RequestBody User user) {
         userService.add(user);
     }
