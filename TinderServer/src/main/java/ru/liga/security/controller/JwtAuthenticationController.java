@@ -1,4 +1,4 @@
-package ru.liga.security.config;
+package ru.liga.security.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +8,10 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import ru.liga.security.domain.JwtRequest;
+import ru.liga.security.domain.JwtResponse;
+import ru.liga.security.service.JwtTokenUtil;
+import ru.liga.security.service.JwtUserDetailsService;
 
 @RestController
 @CrossOrigin
@@ -26,7 +30,7 @@ public class JwtAuthenticationController {
         this.userDetailsService = userDetailsService;
     }
 
-    @PostMapping("/authenticate")
+    @PostMapping("/login")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
 
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());

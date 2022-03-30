@@ -1,9 +1,6 @@
 package ru.liga.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import ru.liga.domain.Application;
 import ru.liga.domain.User;
@@ -22,19 +19,23 @@ public class ApplicationController {
         this.applicationService = applicationService;
     }
 
-    @PostMapping("/{current}/like/{target}")
-    public void likeUser(@PathVariable User current,
-                         @PathVariable User target) {
-        applicationService.likeUser(current, target);
+    @PostMapping("/like/{target}")
+    public void likeUser(@PathVariable User target) {
+        applicationService.likeUser(target);
     }
 
     @GetMapping("/whoLikedUs")
     public Set<Application> whoLikedUs() {
-        return applicationService.whoLikedUser(getCurrentUsername());
+        return applicationService.whoLikedUser();
     }
 
-    public String getCurrentUsername() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return auth.getName();
+    @GetMapping("/whomILiked")
+    public Set<Application> whomIliked() {
+        return applicationService.whomILiked();
+    }
+
+    @GetMapping("/findApplications")
+    public Set<Application> findApplications() {
+        return applicationService.findApplications();
     }
 }

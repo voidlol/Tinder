@@ -1,4 +1,4 @@
-package ru.liga.security.config;
+package ru.liga.security.service;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
