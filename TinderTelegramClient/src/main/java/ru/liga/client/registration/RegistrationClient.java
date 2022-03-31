@@ -21,7 +21,6 @@ public class RegistrationClient {
 
     public void registerUser(User user) {
         HttpEntity<User> request = new HttpEntity<>(user);
-        System.out.println(registrationConfig.getRegistrationUrl());
         restTemplate.postForObject(registrationConfig.getRegistrationUrl(), request, User.class);
     }
 }

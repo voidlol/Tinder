@@ -10,8 +10,8 @@ public class UserAuth {
     private String username;
     private String password;
 
-    public UserAuth(User user) {
-        this.username = String.valueOf(user.getId());
-        this.password = user.getPassword();
+    public UserAuth(Long id, String password) {
+        this.username = String.valueOf(id);
+        this.password = password;
     }
 }

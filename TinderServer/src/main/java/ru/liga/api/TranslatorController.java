@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.liga.domain.Application;
+import ru.liga.domain.Profile;
 import ru.liga.service.PrerevolutionaryTranslator;
 
 @RestController
@@ -19,9 +19,8 @@ public class TranslatorController {
         this.prerevolutionaryTranslator = prerevolutionaryTranslator;
     }
 
-    @PostMapping("/application")
-    public Application translate(@RequestBody Application application) {
-        return application;
-        //return prerevolutionaryTranslator.translate(application);
+    @PostMapping("/profile")
+    public Profile translate(@RequestBody Profile userProfile) {
+        return prerevolutionaryTranslator.translateProfile(userProfile);
     }
 }

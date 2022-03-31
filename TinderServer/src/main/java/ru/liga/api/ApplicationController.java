@@ -2,8 +2,7 @@ package ru.liga.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.liga.domain.Application;
-import ru.liga.domain.User;
+import ru.liga.domain.Profile;
 import ru.liga.service.ApplicationService;
 
 import java.util.Set;
@@ -20,27 +19,28 @@ public class ApplicationController {
     }
 
     @PostMapping("/like/{target}")
-    public void likeUser(@PathVariable Application target) {
+    public void likeUser(@PathVariable Profile target) {
         applicationService.likeUser(target);
     }
 
     @GetMapping("/")
-    public Application getUserApplication() {
+    public Profile getUserApplication() {
         return applicationService.getUserApplication();
     }
 
-    @GetMapping("/whoLikedUs")
-    public Set<Application> whoLikedUs() {
-        return applicationService.whoLikedUser();
+
+    @GetMapping("/weLike")
+    public Set<Profile> weLike() {
+        return applicationService.weLike();
     }
 
-    @GetMapping("/whomILiked")
-    public Set<Application> whomIliked() {
-        return applicationService.whomILiked();
+    @GetMapping("/isReciprocity/{target}")
+    public Boolean isReciprocity(@PathVariable Profile target) {
+        return applicationService.isReciprocity(target);
     }
 
-    @GetMapping("/findApplications")
-    public Set<Application> findApplications() {
-        return applicationService.findApplications();
+    @GetMapping("/search")
+    public Set<Profile> searchList() {
+        return applicationService.searchList();
     }
 }

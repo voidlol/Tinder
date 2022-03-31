@@ -3,7 +3,6 @@ package ru.liga.domain;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import ru.liga.dto.UserDTO;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -22,8 +21,7 @@ public class User implements UserDetails {
 
     private String password;
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "application")
-    private Application applicationId = null;
+    private Profile profile;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

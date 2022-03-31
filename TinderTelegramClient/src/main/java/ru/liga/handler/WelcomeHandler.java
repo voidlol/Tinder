@@ -2,13 +2,16 @@ package ru.liga.handler;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.liga.botstate.BotState;
-import ru.liga.client.cache.UserDetailsCache;
+import ru.liga.cache.UserDetailsCache;
 
 @Component
 public class WelcomeHandler implements InputHandler {
+
+    //Юзер жмет кнопку регистрация ->
 
     private static final String LOGIN = "/login";
     private final UserDetailsCache userDetailsCache;
@@ -19,7 +22,7 @@ public class WelcomeHandler implements InputHandler {
     }
 
     @Override
-    public SendMessage handle(Message message) {
+    public BotApiMethod<?> handle(Message message) {
         return processMessage(message);
     }
 
@@ -30,18 +33,18 @@ public class WelcomeHandler implements InputHandler {
 
     private SendMessage processMessage(Message message) {
         String text = message.getText();
-        Long id = message.getFrom().getId();
+        Long userId = message.getFrom().getId();
         SendMessage reply = new SendMessage();
 
         if (text.equals(LOGIN)) {
-            userDetailsCache.changeUserState(id, BotState.LOGIN_ASK_PASSWORD);
-            reply.setText(BotState.LOGIN_ASK_PASSWORD.getMessage());
+            userDetailsCache.changeUserState(userId, BotState.LOGIN_ASK_PASSWORD);
+            reply.setText("Enter password");
         } else {
-            if (userDetailsCache.isRegistered(id)) {
-                reply.setText(BotState.REGISTERED.getMessage());
+            if (userDetailsCache.isRegistered(userId)) {
+                reply.setText("You are already registered!");
             } else {
-                reply.setText(BotState.LOGIN_ASK_PASSWORD.getMessage());
-                userDetailsCache.changeUserState(id, BotState.REGISTER_ASK_PASSWORD);
+                reply.setText("Enter password");
+                userDetailsCache.changeUserState(userId, BotState.REGISTER_ASK_PASSWORD);
             }
         }
         return reply;

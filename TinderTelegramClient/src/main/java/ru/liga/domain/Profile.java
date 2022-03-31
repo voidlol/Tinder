@@ -14,6 +14,5 @@ public class Profile {
     private String description;
     private SexType sexType;
     private Set<SexType> lookingFor;
-    private Set<Profile> whoLikedUs;
-    private Set<Profile> whomILiked;
+
 }

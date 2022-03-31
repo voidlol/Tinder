@@ -2,6 +2,7 @@ package ru.liga.handler;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.liga.botstate.BotState;
@@ -21,7 +22,7 @@ public class RegistrationHandler implements InputHandler {
     }
 
     @Override
-    public SendMessage handle(Message message) {
+    public BotApiMethod<?> handle(Message message) {
         return processMessage(message);
     }
 
