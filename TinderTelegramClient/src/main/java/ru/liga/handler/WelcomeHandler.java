@@ -35,12 +35,12 @@ public class WelcomeHandler implements InputHandler {
 
         if (text.equals(LOGIN)) {
             userDetailsCache.changeUserState(id, BotState.LOGIN_ASK_PASSWORD);
-            reply.setText("Enter password");
+            reply.setText(BotState.LOGIN_ASK_PASSWORD.getMessage());
         } else {
             if (userDetailsCache.isRegistered(id)) {
-                reply.setText("You are already registered!");
+                reply.setText(BotState.REGISTERED.getMessage());
             } else {
-                reply.setText("Enter password");
+                reply.setText(BotState.LOGIN_ASK_PASSWORD.getMessage());
                 userDetailsCache.changeUserState(id, BotState.REGISTER_ASK_PASSWORD);
             }
         }
