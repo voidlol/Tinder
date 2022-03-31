@@ -5,6 +5,7 @@ import lombok.Getter;
 @Getter
 public enum BotState {
     WELCOME,
+    ROOT_MENU("Login with password or register"),
     REGISTER,
     REGISTER_ASK_PASSWORD("Enter password"),
     REGISTER_ASK_CONF_PASSWORD("Confirm password"),
@@ -15,6 +16,7 @@ public enum BotState {
     PROFILE_FILLING_ASK_LOOKING_FOR,
     LOGIN,
     LOGIN_ASK_PASSWORD("Enter password"),
+    MY_PROFILE,
     IN_MENU,
     SEARCHING,
     VIEWING;

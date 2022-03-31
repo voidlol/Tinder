@@ -3,7 +3,6 @@ package ru.liga.cache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.liga.botstate.BotState;
-import ru.liga.client.ApiConsumer;
 import ru.liga.client.registration.RegistrationClient;
 import ru.liga.client.registration.UserClient;
 import ru.liga.domain.User;
@@ -33,7 +32,7 @@ public class UserDetailsCache {
     }
 
     public boolean isRegistered(Long id) {
-        return userClient.getAllUserIds().contains(id);
+        return userClient.isUserExists(id);
     }
 
     public BotState getCurrentBotState(Long id) {

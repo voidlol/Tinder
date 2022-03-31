@@ -20,7 +20,7 @@ public class AuthorizationService {
 
     public HttpEntity<Void> getHeaders(Long userId) {
         HttpHeaders headers = new HttpHeaders();
-        String token = "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjQ4NTY3NjA3fQ.7Hk8uI0EWuJCJl48sQAuc6M0WBwTbh-YoXy4iWNve5a80hpCaJqhfGAMk2ENlQXDcSThWlwsYAf-oo8nmULgUA";
+        String token = TOKEN_PREFIX + userSessionCache.getTokenForUser(userId);
         headers.set(AUTHORIZATION, token);
         return new HttpEntity(headers);
     }
