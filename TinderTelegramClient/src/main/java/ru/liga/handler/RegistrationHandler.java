@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.liga.botstate.BotState;
 import ru.liga.client.cache.UserDetailsCache;
@@ -27,6 +28,11 @@ public class RegistrationHandler implements InputHandler {
     }
 
     @Override
+    public BotApiMethod<?> handleCallBack(CallbackQuery callbackQuery) {
+        return null;
+    }
+
+    @Override
     public BotState getBotState() {
         return BotState.REGISTER;
     }
@@ -35,6 +41,7 @@ public class RegistrationHandler implements InputHandler {
         Long userId = message.getFrom().getId();
         BotState currentBotState = userDetailsCache.getCurrentBotState(userId);
         SendMessage reply = new SendMessage();
+        reply.setChatId(message.getChatId().toString());
         User newUser = userDetailsCache.getUser(userId);
 
         switch (currentBotState) {
@@ -53,7 +60,6 @@ public class RegistrationHandler implements InputHandler {
                     userDetailsCache.changeUserState(userId, BotState.REGISTER_ASK_PASSWORD);
                 } else {
                     newUser.setProfile(new Profile());
-                    userDetailsCache.registerUser(userId);
                     reply.setText(BotState.PROFILE_FILLING_ASK_NAME.getMessage());
                     userDetailsCache.changeUserState(userId, BotState.PROFILE_FILLING_ASK_NAME);
                 }

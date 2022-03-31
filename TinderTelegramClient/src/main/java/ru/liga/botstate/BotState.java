@@ -21,11 +21,11 @@ public enum BotState {
     PROFILE_FILLING_ASK_GENDER("Ваш пол: "),
     PROFILE_FILLING_ASK_DESCRIPTION("Расскажите о себе"),
     PROFILE_FILLING_ASK_LOOKING_FOR("Кого Вы ищете?"),
-    PROFILE_COMPLETED("Профиль заполнен!"),
     LOGIN("Авторизация"),
     LOGIN_ASK_PASSWORD("Введите пароль: "),
     IN_MENU("Меню"),
     SEARCHING("Поиск"),
+    ROOT_MENU,
     VIEWING("Просмотр");
 
     private String message;

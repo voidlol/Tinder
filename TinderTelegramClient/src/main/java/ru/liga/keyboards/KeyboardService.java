@@ -2,6 +2,7 @@ package ru.liga.keyboards;
 
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
@@ -9,6 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import ru.liga.domain.SexType;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -60,8 +62,7 @@ public class KeyboardService {
     }
 
     private List<InlineKeyboardButton> createButtonsRow(InlineKeyboardButton... buttons) {
-        return List.of(buttons);
-
+        return new ArrayList<>(List.of(buttons));
     }
 
     private InlineKeyboardButton createInlineButton(String text, String data) {
@@ -69,5 +70,15 @@ public class KeyboardService {
         button.setText(text);
         button.setCallbackData(data);
         return button;
+    }
+
+    public ReplyKeyboardMarkup getWelcomeKeyboard() {
+        KeyboardRow rowRegistrationOrLogin = new KeyboardRow();
+        rowRegistrationOrLogin.add(new KeyboardButton(ButtonNameEnum.REGISTRATION_BUTTON.getButtonName()));
+        rowRegistrationOrLogin.add(new KeyboardButton(ButtonNameEnum.LOGIN_BUTTON.getButtonName()));
+        ReplyKeyboardMarkup keyboard = new ReplyKeyboardMarkup();
+        keyboard.setKeyboard(List.of(rowRegistrationOrLogin));
+        keyboard.setOneTimeKeyboard(true);
+        return keyboard;
     }
 }

@@ -5,8 +5,7 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestTemplate;
-import org.telegram.telegrambots.bots.DefaultBotOptions;
+import org.telegram.telegrambots.meta.api.methods.updates.SetWebhook;
 import ru.liga.botapi.TelegramFacade;
 import ru.liga.botapi.TinderBot;
 
@@ -17,25 +16,16 @@ import ru.liga.botapi.TinderBot;
 public class BotConfig {
 
     private String webHookPath;
-    private String botUserName;
+    private String userName;
     private String botToken;
-
-    private DefaultBotOptions.ProxyType proxyType;
-    private String proxyHost;
-    private int proxyPort;
 
     @Bean
     public TinderBot createTinderBot(TelegramFacade telegramFacade) {
-        DefaultBotOptions options = new DefaultBotOptions();
+        SetWebhook setWebhook = SetWebhook.builder().url(webHookPath).build();
 
-        options.setProxyHost(proxyHost);
-        options.setProxyPort(proxyPort);
-        options.setProxyType(proxyType);
-
-        TinderBot tinderBot = new TinderBot(options, telegramFacade);
-        tinderBot.setBotUsername(botUserName);
+        TinderBot tinderBot = new TinderBot(setWebhook, telegramFacade);
+        tinderBot.setBotUsername(userName);
         tinderBot.setBotToken(botToken);
-        tinderBot.setBotPath(webHookPath);
 
         return tinderBot;
     }

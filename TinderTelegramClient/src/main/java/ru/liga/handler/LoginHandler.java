@@ -3,10 +3,11 @@ package ru.liga.handler;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.liga.botstate.BotState;
-import ru.liga.cache.UserDetailsCache;
-import ru.liga.cache.UserSessionCache;
+import ru.liga.client.cache.UserDetailsCache;
+import ru.liga.client.cache.UserSessionCache;
 import ru.liga.client.login.LoginClient;
 import ru.liga.client.profile.ProfileClient;
 import ru.liga.domain.Profile;
@@ -32,15 +33,21 @@ public class LoginHandler implements InputHandler {
         return processInputMessage(message);
     }
 
+    @Override
+    public BotApiMethod<?> handleCallBack(CallbackQuery callbackQuery) {
+        return null;
+    }
+
     private BotApiMethod<?> processInputMessage(Message message) {
         Long userId = message.getFrom().getId();
         String password = message.getText();
         SendMessage reply = new SendMessage();
+        reply.setChatId(message.getChatId().toString());
 
         String token = loginClient.login(new UserAuth(userId, password));
         if (token.length() > 20) {
             userSessionCache.addTokenForUser(userId, token);
-            userDetailsCache.changeUserState(userId, BotState.MY_PROFILE);
+            userDetailsCache.changeUserState(userId, BotState.IN_MENU);
             Profile userProfile = profileClient.getUserProfile(userId);
             reply.setText(userProfile.toString());
         } else {
