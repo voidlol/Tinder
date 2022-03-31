@@ -9,7 +9,6 @@ import ru.liga.domain.User;
 import ru.liga.repo.UserRepository;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -53,5 +52,9 @@ public class UserService {
         List<User> users = new ArrayList<>();
         userRepository.findAll().forEach(users::add);
         return users;
+    }
+
+    public Boolean isUserExists(Long id) {
+        return userRepository.findById(id).isPresent();
     }
 }

@@ -2,13 +2,12 @@ package ru.liga.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.liga.domain.Application;
-import ru.liga.domain.SexType;
+import ru.liga.domain.Profile;
 import ru.liga.domain.User;
 import ru.liga.repo.ApplicationRepository;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ApplicationService {
@@ -22,35 +21,37 @@ public class ApplicationService {
         this.userService = userService;
     }
 
-    public void likeUser(Application target) {
+    public void likeUser(Profile target) {
         User current = userService.getCurrentUser();
-        current.getApplicationId().getWhomILiked().add(target);
-        applicationRepository.save(current.getApplicationId());
+        current.getProfile().getWeLike().add(target);
+        applicationRepository.save(current.getProfile());
     }
 
-    public Set<Application> whoLikedUser() {
+
+    public Set<Profile> weLike() {
         User current = userService.getCurrentUser();
-        return current.getApplicationId().getWhoLikedMe();
+        return current.getProfile().getWeLike();
     }
 
-    public Set<Application> whomILiked() {
-        User current = userService.getCurrentUser();
-        return current.getApplicationId().getWhomILiked();
+    public Profile getUserApplication() {
+        return userService.getCurrentUser().getProfile();
     }
 
-    public Set<Application> findApplications() {
-        Set<Application> applications = new HashSet<>();
+    public Boolean isReciprocity(Profile target) {
         User currentUser = userService.getCurrentUser();
-        Application userApplication = currentUser.getApplicationId();
-        for (SexType sexType : userApplication.getLookingFor()) {
-            applications.addAll(applicationRepository
-                    .findApplicationBySexTypeAndLookingForContaining(sexType, userApplication.getSexType()));
-        }
-        applications.remove(userApplication);
-        return applications;
+        Profile profile = currentUser.getProfile();
+        return profile.getWhoLikedMe().contains(target);
     }
 
-    public Application getUserApplication() {
-        return userService.getCurrentUser().getApplicationId();
+    public Set<Profile> searchList() {
+        User currentUser = userService.getCurrentUser();
+        Profile userProfile = currentUser.getProfile();
+        Set<Profile> weLike = userProfile.getWeLike();
+        return applicationRepository.findAll().stream()
+                .filter(p -> !p.equals(userProfile))
+                .filter(p -> userProfile.getLookingFor().contains(p.getSexType()))
+                .filter(p -> p.getLookingFor().contains(userProfile.getSexType()))
+                .filter(p -> !weLike.contains(p))
+                .collect(Collectors.toSet());
     }
 }

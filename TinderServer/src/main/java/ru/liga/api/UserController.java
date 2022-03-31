@@ -44,4 +44,9 @@ public class UserController {
                 .collect(Collectors.toSet());
 
     }
+
+    @GetMapping("/exists/{id}")
+    public Boolean isUserExists(@PathVariable Long id) {
+        return userService.isUserExists(id);
+    }
 }
