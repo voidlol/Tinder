@@ -2,7 +2,6 @@ package ru.liga.keyboards;
 
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
@@ -10,7 +9,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import ru.liga.domain.SexType;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -20,20 +18,9 @@ public class KeyboardService {
         rowRegistrationOrLogin.add(new KeyboardButton(ButtonNameEnum.REGISTRATION_BUTTON.getButtonName()));
         rowRegistrationOrLogin.add(new KeyboardButton(ButtonNameEnum.LOGIN_BUTTON.getButtonName()));
 
-        KeyboardRow rowMenu = new KeyboardRow();
-        rowMenu.add(new KeyboardButton(ButtonNameEnum.SEARCH_BUTTON.getButtonName()));
-        rowMenu.add(new KeyboardButton(ButtonNameEnum.FAVORITES_BUTTON.getButtonName()));
-        rowMenu.add(new KeyboardButton(ButtonNameEnum.PROFILE_BUTTON.getButtonName()));
-
-        KeyboardRow rowSearch = new KeyboardRow();
-        rowSearch.add(new KeyboardButton(ButtonNameEnum.LEFT_BUTTON.getButtonName()));
-        rowSearch.add(new KeyboardButton(ButtonNameEnum.RIGHT_BUTTON.getButtonName()));
-        rowSearch.add(new KeyboardButton(ButtonNameEnum.BACK_BUTTON.getButtonName()));
 
         List<KeyboardRow> keyboard = new ArrayList<>();
         keyboard.add(rowRegistrationOrLogin);
-        keyboard.add(rowMenu);
-        keyboard.add(rowSearch);
 
         final ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         replyKeyboardMarkup.setKeyboard(keyboard);
@@ -44,11 +31,25 @@ public class KeyboardService {
         return replyKeyboardMarkup;
     }
 
+    public ReplyKeyboardMarkup getInMenuKeyboard() {
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        KeyboardButton searchButton = new KeyboardButton(ButtonNameEnum.SEARCH_BUTTON.getButtonName());
+        KeyboardButton favoritesButton = new KeyboardButton(ButtonNameEnum.FAVORITES_BUTTON.getButtonName());
+        KeyboardButton profileButton = new KeyboardButton(ButtonNameEnum.PROFILE_BUTTON.getButtonName());
+
+        KeyboardRow keyboardButtonRow = createKeyboardButtonRow(searchButton, favoritesButton, profileButton);
+        List<KeyboardRow> keyboard = new ArrayList<>();
+        keyboard.add(keyboardButtonRow);
+        replyKeyboardMarkup.setKeyboard(keyboard);
+        replyKeyboardMarkup.setOneTimeKeyboard(true);
+        return replyKeyboardMarkup;
+    }
+
     public InlineKeyboardMarkup getMySexKeyboard() {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         InlineKeyboardButton maleButton = createInlineButton(SexType.MALE.getTranslatedName(), String.valueOf(SexType.MALE));
         InlineKeyboardButton femaleButton = createInlineButton(SexType.FEMALE.getTranslatedName(), String.valueOf(SexType.FEMALE));
-        List<InlineKeyboardButton> buttonsRow = createButtonsRow(maleButton, femaleButton);
+        List<InlineKeyboardButton> buttonsRow = createInlineButtonsRow(maleButton, femaleButton);
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         keyboard.add(buttonsRow);
         inlineKeyboardMarkup.setKeyboard(keyboard);
@@ -61,8 +62,14 @@ public class KeyboardService {
         return inlineKeyboardMarkup;
     }
 
-    private List<InlineKeyboardButton> createButtonsRow(InlineKeyboardButton... buttons) {
+    private List<InlineKeyboardButton> createInlineButtonsRow(InlineKeyboardButton... buttons) {
         return new ArrayList<>(List.of(buttons));
+    }
+
+    private KeyboardRow createKeyboardButtonRow(KeyboardButton... buttons) {
+        KeyboardRow keyboardButtons = new KeyboardRow();
+        keyboardButtons.addAll(List.of(buttons));
+        return keyboardButtons;
     }
 
     private InlineKeyboardButton createInlineButton(String text, String data) {
@@ -80,5 +87,30 @@ public class KeyboardService {
         keyboard.setKeyboard(List.of(rowRegistrationOrLogin));
         keyboard.setOneTimeKeyboard(true);
         return keyboard;
+    }
+
+    private List<List<InlineKeyboardButton>> getScrollKeyboard(String lastButtonText, String lastButtonData) {
+        InlineKeyboardButton nextButton = createInlineButton("Следующая", "NEXT");
+        InlineKeyboardButton menuButton = createInlineButton("В меню", "MENU");
+        InlineKeyboardButton likeButton = createInlineButton(lastButtonText, lastButtonData);
+
+        List<InlineKeyboardButton> buttonsRow = createInlineButtonsRow(nextButton, menuButton, likeButton);
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        keyboard.add(buttonsRow);
+        return keyboard;
+    }
+
+    public InlineKeyboardMarkup getSearchingKeyboard() {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.setKeyboard(getScrollKeyboard("Лайкнуть", "LIKE"));
+
+        return inlineKeyboardMarkup;
+    }
+
+    public InlineKeyboardMarkup getFavoritesKeyboard() {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.setKeyboard(getScrollKeyboard("Убрать лайк", "DISLIKE"));
+
+        return inlineKeyboardMarkup;
     }
 }

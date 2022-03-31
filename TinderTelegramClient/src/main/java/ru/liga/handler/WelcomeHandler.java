@@ -49,10 +49,10 @@ public class WelcomeHandler implements InputHandler {
             reply.setText(BotState.REGISTER_ASK_PASSWORD.getMessage());
         } else if (text.equals(ButtonNameEnum.REGISTRATION_BUTTON.getButtonName())) {
             if (userDetailsCache.isRegistered(userId)) {
-                reply.setText("You are already registered!");
+                reply.setText(BotState.REGISTERED.getMessage());
                 reply.setReplyMarkup(keyboardService.getWelcomeKeyboard());
             } else {
-                reply.setText("Enter password");
+                reply.setText(BotState.REGISTER_ASK_PASSWORD.getMessage());
                 userDetailsCache.changeUserState(userId, BotState.REGISTER_ASK_PASSWORD);
             }
         }

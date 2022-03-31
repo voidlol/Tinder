@@ -10,6 +10,7 @@ import ru.liga.config.ProfileConfig;
 import ru.liga.domain.Profile;
 import ru.liga.service.AuthorizationService;
 
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -32,6 +33,12 @@ public class ProfileClient {
         return exchange.getBody();
     }
 
+    public List<Profile> getValidProfiles(Long userId) {
+        HttpEntity<Void> requestEntity = authorizationService.getHeaders(userId);
+        ResponseEntity<Profile[]> exchange = restTemplate.exchange(profileConfig.getProfileUrl() + "/search", HttpMethod.GET, requestEntity, Profile[].class);
+        return List.of(exchange.getBody());
+    }
+
     public void likeProfile(Long userId, Long profileId) {
         HttpEntity<Void> requestEntity = authorizationService.getHeaders(userId);
         restTemplate.postForObject(String.format(profileConfig.getLikeUrl(), profileId), requestEntity, String.class);
@@ -39,7 +46,12 @@ public class ProfileClient {
 
     public Set<Profile> getFavorites(Long userId) {
         HttpEntity<Void> requestEntity = authorizationService.getHeaders(userId);
-        ResponseEntity<Profile[]> exchange = restTemplate.exchange("http://localhost:8085/api/applications/weLike", HttpMethod.GET, requestEntity, Profile[].class);
+        ResponseEntity<Profile[]> exchange = restTemplate.exchange("http://localhost:8085/api/profile/weLike", HttpMethod.GET, requestEntity, Profile[].class);
         return Set.of(exchange.getBody());
+    }
+
+    public void unlikeProfile(Long userId, Long profileId) {
+        HttpEntity<Void> requestEntity = authorizationService.getHeaders(userId);
+        restTemplate.postForObject(String.format(profileConfig.getUnlikeUrl(), profileId), requestEntity, String.class);
     }
 }

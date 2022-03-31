@@ -41,9 +41,9 @@ public class TelegramFacade {
 
     private BotApiMethod<?> handleMessage(Message message) {
         String inputText = message.getText();
-        System.out.println(inputText + " " + message.getFrom());
         long userId = message.getFrom().getId();
         BotState botState = userDetailsCache.getCurrentBotState(userId);
+        System.out.println(inputText + " " + botState);
 
         if (botState == null && inputText.equals("/start")) {
             botState = BotState.ROOT_MENU;

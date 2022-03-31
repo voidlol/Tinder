@@ -1,5 +1,6 @@
 package ru.liga.handler;
 
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -12,21 +13,17 @@ import ru.liga.client.login.LoginClient;
 import ru.liga.client.profile.ProfileClient;
 import ru.liga.domain.Profile;
 import ru.liga.domain.UserAuth;
+import ru.liga.keyboards.KeyboardService;
 
 @Component
+@AllArgsConstructor
 public class LoginHandler implements InputHandler {
 
     private final LoginClient loginClient;
     private final UserSessionCache userSessionCache;
     private final UserDetailsCache userDetailsCache;
     private final ProfileClient profileClient;
-
-    public LoginHandler(LoginClient loginClient, UserSessionCache userSessionCache, UserDetailsCache userDetailsCache, ProfileClient profileClient) {
-        this.loginClient = loginClient;
-        this.userSessionCache = userSessionCache;
-        this.userDetailsCache = userDetailsCache;
-        this.profileClient = profileClient;
-    }
+    private final KeyboardService keyboardService;
 
     @Override
     public BotApiMethod<?> handle(Message message) {
@@ -49,9 +46,10 @@ public class LoginHandler implements InputHandler {
             userSessionCache.addTokenForUser(userId, token);
             userDetailsCache.changeUserState(userId, BotState.IN_MENU);
             Profile userProfile = profileClient.getUserProfile(userId);
+            reply.setReplyMarkup(keyboardService.getInMenuKeyboard());
             reply.setText(userProfile.toString());
         } else {
-            reply.setText("Wrong password! Try again:");
+            reply.setText("Неверный пароль! Попробуйте еще раз");
         }
         return reply;
     }

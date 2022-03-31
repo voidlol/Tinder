@@ -10,13 +10,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-public class ApplicationService {
+public class ProfileService {
 
     private final ApplicationRepository applicationRepository;
     private final UserService userService;
 
     @Autowired
-    public ApplicationService(ApplicationRepository applicationRepository, UserService userService) {
+    public ProfileService(ApplicationRepository applicationRepository, UserService userService) {
         this.applicationRepository = applicationRepository;
         this.userService = userService;
     }
@@ -47,11 +47,18 @@ public class ApplicationService {
         User currentUser = userService.getCurrentUser();
         Profile userProfile = currentUser.getProfile();
         Set<Profile> weLike = userProfile.getWeLike();
-        return applicationRepository.findAll().stream()
+        Set<Profile> collect = applicationRepository.findAll().stream()
                 .filter(p -> !p.equals(userProfile))
                 .filter(p -> userProfile.getLookingFor().contains(p.getSexType()))
                 .filter(p -> p.getLookingFor().contains(userProfile.getSexType()))
                 .filter(p -> !weLike.contains(p))
                 .collect(Collectors.toSet());
+        return collect;
+    }
+
+    public void unlikeUser(Profile target) {
+        User current = userService.getCurrentUser();
+        current.getProfile().getWeLike().remove(target);
+        applicationRepository.save(current.getProfile());
     }
 }

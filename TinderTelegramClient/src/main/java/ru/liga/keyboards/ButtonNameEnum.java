@@ -9,7 +9,7 @@ public enum ButtonNameEnum {
     SEARCH_BUTTON("Поиск"),
     PROFILE_BUTTON("Профиль"),
     BACK_BUTTON("Назад"),
-    FAVORITES_BUTTON("Избранное");
+    FAVORITES_BUTTON("Избранные");
 
     private final String buttonName;
 
