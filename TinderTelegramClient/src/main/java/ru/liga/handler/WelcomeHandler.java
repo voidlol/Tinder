@@ -9,15 +9,18 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.liga.botstate.BotState;
 import ru.liga.client.cache.UserDetailsCache;
 import ru.liga.keyboards.ButtonNameEnum;
+import ru.liga.keyboards.KeyboardService;
 
 @Component
 public class WelcomeHandler implements InputHandler {
 
     private final UserDetailsCache userDetailsCache;
+    private final KeyboardService keyboardService;
 
     @Autowired
-    public WelcomeHandler(UserDetailsCache userDetailsCache) {
+    public WelcomeHandler(UserDetailsCache userDetailsCache, KeyboardService keyboardService) {
         this.userDetailsCache = userDetailsCache;
+        this.keyboardService = keyboardService;
     }
 
     @Override
@@ -43,10 +46,11 @@ public class WelcomeHandler implements InputHandler {
 
         if (text.equals(ButtonNameEnum.LOGIN_BUTTON.getButtonName())) {
             userDetailsCache.changeUserState(userId, BotState.LOGIN_ASK_PASSWORD);
-            reply.setText("Enter password");
+            reply.setText(BotState.REGISTER_ASK_PASSWORD.getMessage());
         } else if (text.equals(ButtonNameEnum.REGISTRATION_BUTTON.getButtonName())) {
             if (userDetailsCache.isRegistered(userId)) {
                 reply.setText("You are already registered!");
+                reply.setReplyMarkup(keyboardService.getWelcomeKeyboard());
             } else {
                 reply.setText("Enter password");
                 userDetailsCache.changeUserState(userId, BotState.REGISTER_ASK_PASSWORD);
