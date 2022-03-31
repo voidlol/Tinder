@@ -4,8 +4,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import ru.liga.config.UsersConfig;
 
-import java.util.Set;
-
 @Component
 public class UserClient {
 
@@ -17,8 +15,9 @@ public class UserClient {
         this.restTemplate = restTemplate;
     }
 
-    public Set<Long> getAllUserIds() {
-        Long[] userIds = restTemplate.getForObject(usersConfig.getUsersUrl(), Long[].class);
-        return Set.of(userIds);
+    public boolean isUserExists(Long id) {
+        Boolean forObject = restTemplate.getForObject(String.format(usersConfig.getUsersUrl(), id), Boolean.class);
+        return forObject;
     }
+
 }

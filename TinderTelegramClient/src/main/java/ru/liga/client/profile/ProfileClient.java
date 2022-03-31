@@ -10,6 +10,8 @@ import ru.liga.config.ProfileConfig;
 import ru.liga.domain.Profile;
 import ru.liga.service.AuthorizationService;
 
+import java.util.Set;
+
 @Component
 public class ProfileClient {
 
@@ -30,8 +32,14 @@ public class ProfileClient {
         return exchange.getBody();
     }
 
-    public void likeProfile(Long userId, Long applicationId) {
+    public void likeProfile(Long userId, Long profileId) {
         HttpEntity<Void> requestEntity = authorizationService.getHeaders(userId);
-        restTemplate.postForObject(String.format(profileConfig.getLikeUrl(), applicationId), requestEntity, String.class);
+        restTemplate.postForObject(String.format(profileConfig.getLikeUrl(), profileId), requestEntity, String.class);
+    }
+
+    public Set<Profile> getFavorites(Long userId) {
+        HttpEntity<Void> requestEntity = authorizationService.getHeaders(userId);
+        ResponseEntity<Profile[]> exchange = restTemplate.exchange("http://localhost:8085/api/applications/weLike", HttpMethod.GET, requestEntity, Profile[].class);
+        return Set.of(exchange.getBody());
     }
 }
