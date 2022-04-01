@@ -18,6 +18,6 @@ public class AuthorizationService {
         HttpHeaders headers = new HttpHeaders();
         String token = TOKEN_PREFIX + userSessionCache.getTokenForUser(userId);
         headers.set(AUTHORIZATION, token);
-        return new HttpEntity(headers);
+        return new HttpEntity<>(headers);
     }
 }

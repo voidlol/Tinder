@@ -33,9 +33,10 @@ public class ProfileClient {
         return List.of(exchange.getBody());
     }
 
-    public void likeProfile(Long userId, Long profileId) {
+    public boolean likeProfile(Long userId, Long profileId) {
         HttpEntity<Void> requestEntity = authorizationService.getHeaders(userId);
         restTemplate.postForObject(String.format(profileConfig.getLikeUrl(), profileId), requestEntity, String.class);
+        return restTemplate.exchange(String.format(profileConfig.getProfileUrl() + "/isReciprocity/%d", profileId), HttpMethod.GET, requestEntity, Boolean.class).getBody();
     }
 
     public Set<Profile> getFavorites(Long userId) {

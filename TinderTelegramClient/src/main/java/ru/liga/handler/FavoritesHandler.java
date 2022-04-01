@@ -2,7 +2,6 @@ package ru.liga.handler;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -65,7 +64,7 @@ public class FavoritesHandler implements InputHandler {
             if (scroller.isEmpty()) {
                 editMessageText.setText("Меню");
                 editMessageText.setReplyMarkup(keyboardService.getInMenuKeyboard2());
-                changeMessage(restTemplate, editMessageText);
+                executeMethod(restTemplate, editMessageText);
                 userDetailsCache.changeUserState(userId, BotState.IN_MENU);
                 return sendCallbackQuery("Не осталось избранных :(", callbackQuery);
             }

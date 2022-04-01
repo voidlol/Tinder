@@ -19,10 +19,14 @@ public interface InputHandler {
 
     BotState getBotState();
 
-    default void changeMessage(RestTemplate restTemplate, EditMessageText editMessageText) {
-        final String DELETE_URL = "http://localhost:9090/change";
-        HttpEntity<EditMessageText> entity = new HttpEntity<>(editMessageText);
-        restTemplate.postForObject(DELETE_URL, entity, EditMessageText.class);
+    default void executeMethod(RestTemplate restTemplate, BotApiMethod<?> method) {
+        final String DELETE_URL = "http://localhost:9090/execute";
+        String methodType = "/popup";
+        if (method instanceof EditMessageText) {
+            methodType = "/change";
+        }
+        HttpEntity<BotApiMethod<?>> entity = new HttpEntity<>(method);
+        restTemplate.postForObject(DELETE_URL + methodType, entity, Void.class);
     }
 
     default AnswerCallbackQuery sendCallbackQuery(String text, CallbackQuery callbackQuery) {

@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -45,7 +44,10 @@ public class SearchingHandler implements InputHandler {
 
         if ("LIKE".equals(queryData)) {
             Profile currentProfile = scroller.getCurrentProfile();
-            profileClient.likeProfile(userId, currentProfile.getId());
+            boolean isReciprocity = profileClient.likeProfile(userId, currentProfile.getId());
+            if (isReciprocity) {
+                executeMethod(restTemplate, sendCallbackQuery("Вы любимы", callbackQuery));
+            }
             return getReply(userId, editMessageText, scroller, callbackQuery);
         } else if ("NEXT".equals(queryData)) {
             return getReply(userId, editMessageText, scroller, callbackQuery);
@@ -63,7 +65,7 @@ public class SearchingHandler implements InputHandler {
             if (scroller.isEmpty()) {
                 editMessageText.setText("Меню");
                 editMessageText.setReplyMarkup(keyboardService.getInMenuKeyboard2());
-                changeMessage(restTemplate, editMessageText);
+                executeMethod(restTemplate, editMessageText);
                 userDetailsCache.changeUserState(userId, BotState.IN_MENU);
                 return sendCallbackQuery("Нет подходящих анкет", callbackQuery);
             }
