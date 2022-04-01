@@ -15,7 +15,7 @@ import ru.liga.domain.User;
 public class RegistrationHandler implements InputHandler {
 
     private final UserDetailsCache userDetailsCache;
-    private static final String NOT_MATHCING_PASSWORDS = "Password doesnt match!\nEnter new password:";
+    private static final String NOT_MATHCING_PASSWORDS = "Пароли не совпадают!\nПожалуйста, введите пароль заново:";
 
     @Autowired
     public RegistrationHandler(UserDetailsCache userDetailsCache) {
