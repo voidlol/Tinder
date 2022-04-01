@@ -1,6 +1,6 @@
 package ru.liga.client.profile;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -13,19 +13,13 @@ import ru.liga.service.AuthorizationService;
 import java.util.List;
 import java.util.Set;
 
+@AllArgsConstructor
 @Component
 public class ProfileClient {
 
     private final RestTemplate restTemplate;
     private final ProfileConfig profileConfig;
     private final AuthorizationService authorizationService;
-
-    @Autowired
-    public ProfileClient(RestTemplate restTemplate, ProfileConfig profileConfig, AuthorizationService authorizationService) {
-        this.restTemplate = restTemplate;
-        this.profileConfig = profileConfig;
-        this.authorizationService = authorizationService;
-    }
 
     public Profile getUserProfile(Long userId) {
         HttpEntity<Void> requestEntity = authorizationService.getHeaders(userId);

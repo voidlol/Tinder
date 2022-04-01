@@ -4,8 +4,6 @@ public enum ButtonNameEnum {
     REGISTRATION_BUTTON("Регистрация"),
     LOGIN_BUTTON("Авторизация"),
     MENU_BUTTON("Меню"),
-    RIGHT_BUTTON("Вправо"),
-    LEFT_BUTTON("Влево"),
     SEARCH_BUTTON("Поиск"),
     PROFILE_BUTTON("Профиль"),
     BACK_BUTTON("Назад"),

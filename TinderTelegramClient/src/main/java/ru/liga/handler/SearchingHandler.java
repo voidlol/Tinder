@@ -36,6 +36,7 @@ public class SearchingHandler implements InputHandler {
         Long userId = callbackQuery.getFrom().getId();
         Long chatId = callbackQuery.getMessage().getChatId();
         String queryData = callbackQuery.getData();
+        log.info("User: {}, State: {}, Button: {}", userId, userDetailsCache.getCurrentBotState(userId), queryData);
         EditMessageText editMessageText = new EditMessageText();
         editMessageText.setChatId(chatId.toString());
         editMessageText.setMessageId(callbackQuery.getMessage().getMessageId());
@@ -45,32 +46,26 @@ public class SearchingHandler implements InputHandler {
         if ("LIKE".equals(queryData)) {
             Profile currentProfile = scroller.getCurrentProfile();
             profileClient.likeProfile(userId, currentProfile.getId());
-            log.info("LIKE BTN: scroller size: {}, scroller current {}", scroller.getSize(), scroller.getCurrent());
-            return getReply(userId, chatId, editMessageText, scroller, callbackQuery.getMessage().getMessageId());
+            return getReply(userId, editMessageText, scroller, callbackQuery);
         } else if ("NEXT".equals(queryData)) {
-            log.info("NEXT BTN: scroller size: {}, scroller current {}", scroller.getSize(), scroller.getCurrent());
-            return getReply(userId, chatId, editMessageText, scroller, callbackQuery.getMessage().getMessageId());
+            return getReply(userId, editMessageText, scroller, callbackQuery);
         } else {
-            log.info("MENU BTN");
-            deleteMessage(chatId, callbackQuery.getMessage().getMessageId(), restTemplate);
-            return getInMenuMessage(userId, chatId);
+            editMessageText.setReplyMarkup(keyboardService.getInMenuKeyboard2());
+            editMessageText.setText("Меню");
+            userDetailsCache.changeUserState(userId, BotState.IN_MENU);
+            return editMessageText;
         }
     }
 
-    private BotApiMethod<?> getInMenuMessage(Long userId, Long chatId) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chatId.toString());
-        sendMessage.setText("Меню");
-        sendMessage.setReplyMarkup(keyboardService.getInMenuKeyboard());
-        userDetailsCache.changeUserState(userId, BotState.IN_MENU);
-        return sendMessage;
-    }
-
-    private BotApiMethod<?> getReply(Long userId, Long chatId, EditMessageText editMessageText, ScrollingWrapper scroller, Integer messageId) {
+    private BotApiMethod<?> getReply(Long userId, EditMessageText editMessageText, ScrollingWrapper scroller, CallbackQuery callbackQuery) {
         if (scroller.isLast()) {
             scroller = new ScrollingWrapper(profileClient.getValidProfiles(userId));
             if (scroller.isEmpty()) {
-                return getNoMoreValidListMessage(userId, chatId, messageId);
+                editMessageText.setText("Меню");
+                editMessageText.setReplyMarkup(keyboardService.getInMenuKeyboard2());
+                changeMessage(restTemplate, editMessageText);
+                userDetailsCache.changeUserState(userId, BotState.IN_MENU);
+                return sendCallbackQuery("Нет подходящих анкет", callbackQuery);
             }
             userDetailsCache.addScroller(userId, scroller);
             editMessageText.setText(scroller.getCurrentProfile().toString());
@@ -78,16 +73,6 @@ public class SearchingHandler implements InputHandler {
             editMessageText.setText(scroller.getNextProfile().toString());
         }
         return editMessageText;
-    }
-
-    private SendMessage getNoMoreValidListMessage(Long userId, Long chatId, Integer messageId) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chatId.toString());
-        sendMessage.setText("Не подходящих анкет :(");
-        sendMessage.setReplyMarkup(keyboardService.getInMenuKeyboard());
-        deleteMessage(chatId, messageId, restTemplate);
-        userDetailsCache.changeUserState(userId, BotState.IN_MENU);
-        return sendMessage;
     }
 
 

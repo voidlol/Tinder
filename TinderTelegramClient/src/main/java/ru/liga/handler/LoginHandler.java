@@ -47,7 +47,7 @@ public class LoginHandler implements InputHandler {
             userDetailsCache.changeUserState(userId, BotState.IN_MENU);
             Profile userProfile = profileClient.getUserProfile(userId);
             reply.setText(userProfile.toString());
-            reply.setReplyMarkup(keyboardService.getInMenuKeyboard());
+            reply.setReplyMarkup(keyboardService.getInMenuKeyboard2());
         } else {
             reply.setText("Неверный пароль! Попробуйте еще раз");
         }

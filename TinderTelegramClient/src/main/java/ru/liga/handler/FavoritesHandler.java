@@ -1,10 +1,11 @@
 package ru.liga.handler;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -15,6 +16,7 @@ import ru.liga.domain.Profile;
 import ru.liga.domain.ScrollingWrapper;
 import ru.liga.keyboards.KeyboardService;
 
+@Slf4j
 @Component
 @AllArgsConstructor
 public class FavoritesHandler implements InputHandler {
@@ -34,6 +36,7 @@ public class FavoritesHandler implements InputHandler {
         Long userId = callbackQuery.getFrom().getId();
         Long chatId = callbackQuery.getMessage().getChatId();
         String queryData = callbackQuery.getData();
+        log.info("User: {}, State: {}, Button: {}", userId, userDetailsCache.getCurrentBotState(userId), queryData);
         EditMessageText editMessageText = new EditMessageText();
         editMessageText.setChatId(chatId.toString());
         editMessageText.setMessageId(callbackQuery.getMessage().getMessageId());
@@ -43,22 +46,28 @@ public class FavoritesHandler implements InputHandler {
         if ("DISLIKE".equals(queryData)) {
             Profile currentProfile = scroller.getCurrentProfile();
             profileClient.unlikeProfile(userId, currentProfile.getId());
-            return getReply(userId, chatId, editMessageText, scroller, callbackQuery.getMessage().getMessageId());
+            return getReply(userId, editMessageText, scroller, callbackQuery);
         } else if ("NEXT".equals(queryData)) {
-            getReply(userId, chatId, editMessageText, scroller, callbackQuery.getMessage().getMessageId());
+            getReply(userId, editMessageText, scroller, callbackQuery);
             return editMessageText;
         } else {
-            deleteMessage(chatId, callbackQuery.getMessage().getMessageId(), restTemplate);
-            return getInMenuMessage(userId, chatId);
+            userDetailsCache.changeUserState(userId, BotState.IN_MENU);
+            editMessageText.setText("Меню");
+            editMessageText.setReplyMarkup(keyboardService.getInMenuKeyboard2());
+            return editMessageText;
         }
     }
 
-    private BotApiMethod<?> getReply(Long userId, Long chatId, EditMessageText editMessageText, ScrollingWrapper scroller, Integer messageId) {
+    private BotApiMethod<?> getReply(Long userId, EditMessageText editMessageText, ScrollingWrapper scroller, CallbackQuery callbackQuery) {
         if (scroller.isLast()) {
             scroller = new ScrollingWrapper(profileClient.getFavorites(userId));
             userDetailsCache.addScroller(userId, scroller);
             if (scroller.isEmpty()) {
-                return getNoMoreFavoritesMessage(userId, chatId, messageId);
+                editMessageText.setText("Меню");
+                editMessageText.setReplyMarkup(keyboardService.getInMenuKeyboard2());
+                changeMessage(restTemplate, editMessageText);
+                userDetailsCache.changeUserState(userId, BotState.IN_MENU);
+                return sendCallbackQuery("Не осталось избранных :(", callbackQuery);
             }
             editMessageText.setText(scroller.getCurrentProfile().toString());
         } else {
@@ -67,24 +76,6 @@ public class FavoritesHandler implements InputHandler {
         return editMessageText;
     }
 
-    private SendMessage getNoMoreFavoritesMessage(Long userId, Long chatId, Integer messageId) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chatId.toString());
-        sendMessage.setText("Не осталось избранных :(");
-        sendMessage.setReplyMarkup(keyboardService.getInMenuKeyboard());
-        deleteMessage(chatId, messageId, restTemplate);
-        userDetailsCache.changeUserState(userId, BotState.IN_MENU);
-        return sendMessage;
-    }
-
-    private BotApiMethod<?> getInMenuMessage(Long userId, Long chatId) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chatId.toString());
-        sendMessage.setText("Меню");
-        sendMessage.setReplyMarkup(keyboardService.getInMenuKeyboard());
-        userDetailsCache.changeUserState(userId, BotState.IN_MENU);
-        return sendMessage;
-    }
 
     @Override
     public BotState getBotState() {

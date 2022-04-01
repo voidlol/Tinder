@@ -1,6 +1,6 @@
 package ru.liga.handler;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -11,16 +11,12 @@ import ru.liga.client.cache.UserDetailsCache;
 import ru.liga.domain.Profile;
 import ru.liga.domain.User;
 
+@AllArgsConstructor
 @Component
 public class RegistrationHandler implements InputHandler {
 
     private final UserDetailsCache userDetailsCache;
     private static final String NOT_MATHCING_PASSWORDS = "Password doesnt match!\nEnter new password:";
-
-    @Autowired
-    public RegistrationHandler(UserDetailsCache userDetailsCache) {
-        this.userDetailsCache = userDetailsCache;
-    }
 
     @Override
     public BotApiMethod<?> handle(Message message) {

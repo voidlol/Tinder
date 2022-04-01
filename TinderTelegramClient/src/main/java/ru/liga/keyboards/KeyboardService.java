@@ -24,8 +24,21 @@ public class KeyboardService {
         List<KeyboardRow> keyboard = new ArrayList<>();
         keyboard.add(keyboardButtonRow);
         replyKeyboardMarkup.setKeyboard(keyboard);
+        replyKeyboardMarkup.setResizeKeyboard(true);
         replyKeyboardMarkup.setOneTimeKeyboard(true);
         return replyKeyboardMarkup;
+    }
+
+    public InlineKeyboardMarkup getInMenuKeyboard2() {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        InlineKeyboardButton searchButton = createInlineButton(ButtonNameEnum.SEARCH_BUTTON.getButtonName(), "SEARCH");
+        InlineKeyboardButton favoritesButton = createInlineButton(ButtonNameEnum.FAVORITES_BUTTON.getButtonName(), "FAVORITES");
+        InlineKeyboardButton profileButton = createInlineButton(ButtonNameEnum.PROFILE_BUTTON.getButtonName(), "PROFILE");
+        List<InlineKeyboardButton> buttonsRow = createInlineButtonsRow(searchButton, favoritesButton, profileButton);
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        keyboard.add(buttonsRow);
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        return inlineKeyboardMarkup;
     }
 
     public InlineKeyboardMarkup getMySexKeyboard() {
@@ -68,6 +81,7 @@ public class KeyboardService {
         rowRegistrationOrLogin.add(new KeyboardButton(ButtonNameEnum.LOGIN_BUTTON.getButtonName()));
         ReplyKeyboardMarkup keyboard = new ReplyKeyboardMarkup();
         keyboard.setKeyboard(List.of(rowRegistrationOrLogin));
+        keyboard.setResizeKeyboard(true);
         keyboard.setOneTimeKeyboard(true);
         return keyboard;
     }

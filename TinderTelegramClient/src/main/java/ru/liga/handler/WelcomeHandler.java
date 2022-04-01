@@ -1,6 +1,6 @@
 package ru.liga.handler;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -12,16 +12,11 @@ import ru.liga.keyboards.ButtonNameEnum;
 import ru.liga.keyboards.KeyboardService;
 
 @Component
+@AllArgsConstructor
 public class WelcomeHandler implements InputHandler {
 
     private final UserDetailsCache userDetailsCache;
     private final KeyboardService keyboardService;
-
-    @Autowired
-    public WelcomeHandler(UserDetailsCache userDetailsCache, KeyboardService keyboardService) {
-        this.userDetailsCache = userDetailsCache;
-        this.keyboardService = keyboardService;
-    }
 
     @Override
     public BotApiMethod<?> handle(Message message) {

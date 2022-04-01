@@ -1,6 +1,6 @@
 package ru.liga.client.login;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -9,17 +9,12 @@ import ru.liga.config.LoginConfig;
 import ru.liga.domain.Token;
 import ru.liga.domain.UserAuth;
 
+@AllArgsConstructor
 @Component
 public class LoginClient {
 
     private final RestTemplate restTemplate;
     private final LoginConfig loginConfig;
-
-    @Autowired
-    public LoginClient(RestTemplate restTemplate, LoginConfig loginConfig) {
-        this.restTemplate = restTemplate;
-        this.loginConfig = loginConfig;
-    }
 
     public String login(UserAuth auth) {
         HttpEntity<UserAuth> request = new HttpEntity<>(auth);

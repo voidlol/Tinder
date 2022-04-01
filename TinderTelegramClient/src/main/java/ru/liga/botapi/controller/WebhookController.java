@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.liga.botapi.TinderBot;
@@ -21,8 +21,8 @@ public class WebhookController {
         return tinderBot.onWebhookUpdateReceived(update);
     }
 
-    @PostMapping("/delete")
-    public void deleteMessage(@RequestBody DeleteMessage method) {
+    @PostMapping("/change")
+    public void changeMessage(@RequestBody EditMessageText method) {
         try {
             tinderBot.execute(method);
         } catch (TelegramApiException e) {

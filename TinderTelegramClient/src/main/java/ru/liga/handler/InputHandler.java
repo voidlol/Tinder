@@ -2,15 +2,16 @@ package ru.liga.handler;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.web.client.RestTemplate;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.liga.botstate.BotState;
 
 public interface InputHandler {
 
-    String DELETE_URL = "http://localhost:9090/delete";
 
     BotApiMethod<?> handle(Message message);
 
@@ -18,11 +19,17 @@ public interface InputHandler {
 
     BotState getBotState();
 
-    default void deleteMessage(Long chatId, Integer messageId, RestTemplate restTemplate) {
-        DeleteMessage deleteMessage = new DeleteMessage();
-        deleteMessage.setMessageId(messageId);
-        HttpEntity<DeleteMessage> entity = new HttpEntity<>(deleteMessage);
-        deleteMessage.setChatId(chatId.toString());
-        restTemplate.postForObject(DELETE_URL, entity, DeleteMessage.class);
+    default void changeMessage(RestTemplate restTemplate, EditMessageText editMessageText) {
+        final String DELETE_URL = "http://localhost:9090/change";
+        HttpEntity<EditMessageText> entity = new HttpEntity<>(editMessageText);
+        restTemplate.postForObject(DELETE_URL, entity, EditMessageText.class);
+    }
+
+    default AnswerCallbackQuery sendCallbackQuery(String text, CallbackQuery callbackQuery) {
+        AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
+        answerCallbackQuery.setText(text);
+        answerCallbackQuery.setShowAlert(false);
+        answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
+        return answerCallbackQuery;
     }
 }

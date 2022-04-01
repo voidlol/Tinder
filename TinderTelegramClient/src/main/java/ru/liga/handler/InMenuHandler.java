@@ -1,8 +1,11 @@
 package ru.liga.handler;
 
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.liga.botstate.BotState;
@@ -30,20 +33,24 @@ public class InMenuHandler implements InputHandler {
 
     @Override
     public BotApiMethod<?> handle(Message message) {
-        Long userId = message.getFrom().getId();
-        Long chatId = message.getChatId();
-        String text = message.getText();
+        return null;
+    }
 
-        SendMessage reply = new SendMessage();
+    @Override
+    public BotApiMethod<?> handleCallBack(CallbackQuery callbackQuery) {
+        Long userId = callbackQuery.getFrom().getId();
+        Long chatId = callbackQuery.getMessage().getChatId();
+        String data = callbackQuery.getData();
+
+        EditMessageText reply = new EditMessageText();
         reply.setChatId(chatId.toString());
+        reply.setMessageId(callbackQuery.getMessage().getMessageId());
 
-        switch (text) {
-            case "Поиск":
+        switch (data) {
+            case "SEARCH":
                 List<Profile> validProfiles = profileClient.getValidProfiles(userId);
                 if (validProfiles.isEmpty()) {
-                    reply.setText("Нет подходящих анкет");
-                    reply.setReplyMarkup(keyboardService.getInMenuKeyboard());
-                    return reply;
+                    return sendCallbackQuery("Не осталось анкет :(", callbackQuery);
                 }
                 ScrollingWrapper searchScroller = new ScrollingWrapper(validProfiles);
                 userDetailsCache.addScroller(userId, searchScroller);
@@ -51,12 +58,10 @@ public class InMenuHandler implements InputHandler {
                 reply.setReplyMarkup(keyboardService.getSearchingKeyboard());
                 userDetailsCache.changeUserState(userId, BotState.SEARCHING);
                 return reply;
-            case "Избранные":
+            case "FAVORITES":
                 Set<Profile> favorites = profileClient.getFavorites(userId);
                 if (favorites.isEmpty()) {
-                    reply.setText("Нет избранных анкет");
-                    reply.setReplyMarkup(keyboardService.getInMenuKeyboard());
-                    return reply;
+                    return sendCallbackQuery("Не избранных анкет :(", callbackQuery);
                 }
                 ScrollingWrapper favoritesScroller = new ScrollingWrapper(favorites);
                 userDetailsCache.addScroller(userId, favoritesScroller);
@@ -65,21 +70,15 @@ public class InMenuHandler implements InputHandler {
                 userDetailsCache.changeUserState(userId, BotState.VIEWING);
                 return reply;
             default:
-                reply.setText("Выберите пункт меню!");
-                reply.setReplyMarkup(keyboardService.getInMenuKeyboard());
+                reply.setText(profileClient.getUserProfile(userId).toString());
+                reply.setReplyMarkup(keyboardService.getInMenuKeyboard2());
                 return reply;
         }
-        //Поиск //Избранные //Профиль
-
-    }
-
-    @Override
-    public BotApiMethod<?> handleCallBack(CallbackQuery callbackQuery) {
-        return null;
     }
 
     @Override
     public BotState getBotState() {
         return BotState.IN_MENU;
     }
+
 }

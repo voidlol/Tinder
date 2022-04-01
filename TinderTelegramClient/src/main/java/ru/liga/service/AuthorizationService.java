@@ -1,22 +1,18 @@
 package ru.liga.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import ru.liga.client.cache.UserSessionCache;
 
+@AllArgsConstructor
 @Component
 public class AuthorizationService {
 
     private static final String TOKEN_PREFIX = "Bearer ";
     private final UserSessionCache userSessionCache;
     private static final String AUTHORIZATION = "Authorization";
-
-    @Autowired
-    public AuthorizationService(UserSessionCache userSessionCache) {
-        this.userSessionCache = userSessionCache;
-    }
 
     public HttpEntity<Void> getHeaders(Long userId) {
         HttpHeaders headers = new HttpHeaders();
