@@ -27,10 +27,7 @@ public class LoginClient {
             Token token = restTemplate.postForObject(loginConfig.getLoginUrl(), request, Token.class);
             return token.getJwtToken();
         } catch (HttpClientErrorException e) {
-            if (e.getStatusCode().is4xxClientError()) {
-                return "Wrong Credential";
-            }
-            return "Server error";
+            return "Wrong password";
         }
     }
 }

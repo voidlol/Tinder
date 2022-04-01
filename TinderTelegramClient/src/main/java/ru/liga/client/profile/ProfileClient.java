@@ -46,7 +46,7 @@ public class ProfileClient {
 
     public Set<Profile> getFavorites(Long userId) {
         HttpEntity<Void> requestEntity = authorizationService.getHeaders(userId);
-        ResponseEntity<Profile[]> exchange = restTemplate.exchange("http://localhost:8085/api/profile/weLike", HttpMethod.GET, requestEntity, Profile[].class);
+        ResponseEntity<Profile[]> exchange = restTemplate.exchange(profileConfig.getWeLikeUrl(), HttpMethod.GET, requestEntity, Profile[].class);
         return Set.of(exchange.getBody());
     }
 

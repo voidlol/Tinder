@@ -9,6 +9,7 @@ import ru.liga.botstate.BotState;
 import ru.liga.client.cache.UserDetailsCache;
 import ru.liga.client.profile.ProfileClient;
 import ru.liga.domain.Profile;
+import ru.liga.domain.ScrollingWrapper;
 import ru.liga.keyboards.KeyboardService;
 
 import java.util.List;

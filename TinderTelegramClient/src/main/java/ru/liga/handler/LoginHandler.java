@@ -42,12 +42,12 @@ public class LoginHandler implements InputHandler {
         reply.setChatId(message.getChatId().toString());
 
         String token = loginClient.login(new UserAuth(userId, password));
-        if (token.length() > 20) {
+        if (!token.equals("Wrong password")) {
             userSessionCache.addTokenForUser(userId, token);
             userDetailsCache.changeUserState(userId, BotState.IN_MENU);
             Profile userProfile = profileClient.getUserProfile(userId);
-            reply.setReplyMarkup(keyboardService.getInMenuKeyboard());
             reply.setText(userProfile.toString());
+            reply.setReplyMarkup(keyboardService.getInMenuKeyboard());
         } else {
             reply.setText("Неверный пароль! Попробуйте еще раз");
         }

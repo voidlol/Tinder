@@ -6,7 +6,7 @@ import ru.liga.botstate.BotState;
 import ru.liga.client.registration.RegistrationClient;
 import ru.liga.client.registration.UserClient;
 import ru.liga.domain.User;
-import ru.liga.handler.ScrollingWrapper;
+import ru.liga.domain.ScrollingWrapper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,12 +17,10 @@ public class UserDetailsCache {
     private final UserClient userClient;
     private final Map<Long, User> userAccounts = new HashMap<>();
     private final Map<Long, ScrollingWrapper> userScrollers = new HashMap<>();
-    private final RegistrationClient registerClient;
 
     @Autowired
-    public UserDetailsCache(UserClient userClient, RegistrationClient registerClient) {
+    public UserDetailsCache(UserClient userClient) {
         this.userClient = userClient;
-        this.registerClient = registerClient;
     }
 
     public void addScroller(Long userId, ScrollingWrapper scrollingWrapper) {
@@ -47,10 +45,6 @@ public class UserDetailsCache {
 
     public BotState getCurrentBotState(Long id) {
         return userState.getOrDefault(id, null);
-    }
-
-    public void registerUser(Long id) {
-        registerClient.registerUser(userAccounts.get(id));
     }
 
     public void changeUserState(Long id, BotState state) {

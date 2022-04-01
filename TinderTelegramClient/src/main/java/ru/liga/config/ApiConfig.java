@@ -11,7 +11,7 @@ import org.springframework.web.client.RestTemplate;
 @Setter
 @Configuration
 @ConfigurationProperties(prefix = "api")
-public class ServerConfig {
+public class ApiConfig {
 
     private String serverUrl;
     private String apiUrl;
@@ -21,10 +21,11 @@ public class ServerConfig {
     private String unlikeUrl;
     private String profileUrl;
     private String usersUrl;
+    private String weLike;
 
     @Bean
     public ProfileConfig createProfileConfig() {
-        return new ProfileConfig(serverUrl, apiUrl, profileUrl, likeUrl, unlikeUrl);
+        return new ProfileConfig(serverUrl, apiUrl, profileUrl, likeUrl, unlikeUrl, weLike);
     }
 
     @Bean

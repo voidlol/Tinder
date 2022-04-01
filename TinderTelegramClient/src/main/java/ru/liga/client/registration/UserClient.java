@@ -16,8 +16,7 @@ public class UserClient {
     }
 
     public boolean isUserExists(Long id) {
-        Boolean forObject = restTemplate.getForObject(String.format(usersConfig.getUsersUrl(), id), Boolean.class);
-        return forObject;
+        return restTemplate.getForObject(String.format(usersConfig.getUsersUrl(), id), Boolean.class);
     }
 
 }

@@ -13,23 +13,6 @@ import java.util.List;
 
 @Service
 public class KeyboardService {
-    public ReplyKeyboardMarkup getMainMenuKeyboard() {
-        KeyboardRow rowRegistrationOrLogin = new KeyboardRow();
-        rowRegistrationOrLogin.add(new KeyboardButton(ButtonNameEnum.REGISTRATION_BUTTON.getButtonName()));
-        rowRegistrationOrLogin.add(new KeyboardButton(ButtonNameEnum.LOGIN_BUTTON.getButtonName()));
-
-
-        List<KeyboardRow> keyboard = new ArrayList<>();
-        keyboard.add(rowRegistrationOrLogin);
-
-        final ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
-        replyKeyboardMarkup.setKeyboard(keyboard);
-        replyKeyboardMarkup.setSelective(true);
-        replyKeyboardMarkup.setResizeKeyboard(true);
-        replyKeyboardMarkup.setOneTimeKeyboard(false);
-
-        return replyKeyboardMarkup;
-    }
 
     public ReplyKeyboardMarkup getInMenuKeyboard() {
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
