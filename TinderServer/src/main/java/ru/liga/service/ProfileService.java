@@ -1,25 +1,19 @@
 package ru.liga.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.liga.domain.Profile;
 import ru.liga.domain.User;
 import ru.liga.repo.ApplicationRepository;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
+@AllArgsConstructor
 @Service
 public class ProfileService {
 
     private final ApplicationRepository applicationRepository;
     private final UserService userService;
-
-    @Autowired
-    public ProfileService(ApplicationRepository applicationRepository, UserService userService) {
-        this.applicationRepository = applicationRepository;
-        this.userService = userService;
-    }
 
     public void likeUser(Profile target) {
         User current = userService.getCurrentUser();

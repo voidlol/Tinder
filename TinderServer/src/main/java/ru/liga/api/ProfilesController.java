@@ -1,6 +1,6 @@
 package ru.liga.api;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.liga.domain.Profile;
 import ru.liga.service.ProfileService;
@@ -8,15 +8,11 @@ import ru.liga.service.ProfileService;
 import java.util.Set;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping("/api/profile")  //http://localhost:8085/api/profile/
 public class ProfilesController {
 
     private final ProfileService profileService;
-
-    @Autowired
-    public ProfilesController(ProfileService profileService) {
-        this.profileService = profileService;
-    }
 
     @PostMapping("/like/{target}")
     public void likeUser(@PathVariable Profile target) {

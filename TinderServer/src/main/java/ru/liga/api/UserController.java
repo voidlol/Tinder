@@ -1,9 +1,8 @@
 package ru.liga.api;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.liga.domain.User;
-import ru.liga.dto.UserDTO;
 import ru.liga.service.UserService;
 
 import java.util.Map;
@@ -11,15 +10,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;
-
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @GetMapping("/{id}")
     public User getUserById(@PathVariable long id) {
