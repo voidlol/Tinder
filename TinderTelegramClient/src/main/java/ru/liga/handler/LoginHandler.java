@@ -18,6 +18,7 @@ import ru.liga.keyboards.KeyboardService;
 @Component
 @AllArgsConstructor
 public class LoginHandler implements InputHandler {
+    private static final String AUTHORIZATION_ERROR  = "Неверный пароль! Попробуйте еще раз";
 
     private final LoginClient loginClient;
     private final UserSessionCache userSessionCache;
@@ -49,7 +50,7 @@ public class LoginHandler implements InputHandler {
             reply.setText(userProfile.toString());
             reply.setReplyMarkup(keyboardService.getInMenuKeyboard());
         } else {
-            reply.setText("Неверный пароль! Попробуйте еще раз");
+            reply.setText(AUTHORIZATION_ERROR);
         }
         return reply;
     }
