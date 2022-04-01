@@ -25,8 +25,6 @@ public class Profile {
     private SexType sexType;
     @ElementCollection(targetClass = SexType.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "sex_type", joinColumns = @JoinColumn(name = "profile_id"))
-    @Enumerated(EnumType.STRING)
-    @JsonIgnore
     private Set<SexType> lookingFor;
 
     @ManyToMany()

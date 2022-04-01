@@ -46,14 +46,7 @@ public class ProfileService {
     public Set<Profile> searchList() {
         User currentUser = userService.getCurrentUser();
         Profile userProfile = currentUser.getProfile();
-        Set<Profile> weLike = userProfile.getWeLike();
-        Set<Profile> collect = applicationRepository.findAll().stream()
-                .filter(p -> !p.equals(userProfile))
-                .filter(p -> userProfile.getLookingFor().contains(p.getSexType()))
-                .filter(p -> p.getLookingFor().contains(userProfile.getSexType()))
-                .filter(p -> !weLike.contains(p))
-                .collect(Collectors.toSet());
-        return collect;
+        return applicationRepository.findAllValidProfilesForUser(userProfile.getId(), userProfile.getSexType().ordinal());
     }
 
     public void unlikeUser(Profile target) {

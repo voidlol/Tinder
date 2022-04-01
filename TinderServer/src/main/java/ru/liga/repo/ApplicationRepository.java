@@ -11,5 +11,10 @@ import java.util.Set;
 
 public interface ApplicationRepository extends CrudRepository<Profile, Long> {
 
-    List<Profile> findAll();
+    @Query(value = "select * from profile\n" +
+            "where sex_type in (select looking_for from sex_type where profile_id = :profileId)\n" +
+            "and id <> :profileId\n" +
+            "and id not in (select to_profile from profile_likes where from_profile = :profileId)\n" +
+            "and id in (select profile_id from sex_type where looking_for = :sexType)", nativeQuery = true)
+    Set<Profile> findAllValidProfilesForUser(Long profileId, int sexType);
 }

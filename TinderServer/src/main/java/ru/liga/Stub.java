@@ -24,7 +24,7 @@ public class Stub {
     public static void main(String[] args) {
         PasswordEncoder encoder = new BCryptPasswordEncoder();
 
-        System.out.println(encoder.encode("testpassword2"));
+        System.out.println(encoder.encode("1"));
         System.out.println("$2a$10$H9GuLRXY9EaqeH95r7Z3Wu4WPfgwAJM7bTmxmU4L5p4MuAAXiszqm");
     }
 }
