@@ -2,7 +2,8 @@ package ru.liga.handler;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.springframework.web.client.RestTemplate;
+import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -11,20 +12,24 @@ import ru.liga.client.cache.UserDetailsCache;
 import ru.liga.keyboards.ButtonNameEnum;
 import ru.liga.keyboards.KeyboardService;
 
+import java.util.Collections;
+import java.util.List;
+
 @Component
 @AllArgsConstructor
 public class WelcomeHandler implements InputHandler {
 
     private final UserDetailsCache userDetailsCache;
     private final KeyboardService keyboardService;
+    private final RestTemplate restTemplate;
 
     @Override
-    public BotApiMethod<?> handle(Message message) {
+    public List<PartialBotApiMethod<?>> handle(Message message) {
         return processMessage(message);
     }
 
     @Override
-    public BotApiMethod<?> handleCallBack(CallbackQuery callbackQuery) {
+    public List<PartialBotApiMethod<?>> handleCallBack(CallbackQuery callbackQuery) {
         return null;
     }
 
@@ -33,7 +38,7 @@ public class WelcomeHandler implements InputHandler {
         return BotState.WELCOME;
     }
 
-    private SendMessage processMessage(Message message) {
+    private List<PartialBotApiMethod<?>> processMessage(Message message) {
         String text = message.getText();
         Long userId = message.getFrom().getId();
         SendMessage reply = new SendMessage();
@@ -51,6 +56,6 @@ public class WelcomeHandler implements InputHandler {
                 userDetailsCache.changeUserState(userId, BotState.REGISTER_ASK_PASSWORD);
             }
         }
-        return reply;
+        return Collections.singletonList(reply);
     }
 }

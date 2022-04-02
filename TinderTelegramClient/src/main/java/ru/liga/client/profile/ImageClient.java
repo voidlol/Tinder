@@ -6,7 +6,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import ru.liga.domain.Profile;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 @Component
 @AllArgsConstructor
@@ -16,13 +18,6 @@ public class ImageClient {
 
     public File getImageForProfile(Profile profile) {
         HttpEntity<Profile> httpEntity = new HttpEntity<>(profile);
-        byte[] bytes = restTemplate.postForObject("http://localhost:8085/api/image", httpEntity, byte[].class);
-        File file = new File("/tmp/" + profile.getName() + ".jpg");
-        try (FileOutputStream fos = new FileOutputStream(file)) {
-            fos.write(bytes);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return file;
+        return restTemplate.postForObject("http://localhost:8085/api/image/", httpEntity, File.class);
     }
 }

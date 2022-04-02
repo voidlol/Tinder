@@ -18,7 +18,7 @@ public class TranslatorClient {
     }
 
     public Profile getTranslatedProfile(Long userId, Profile profile) {
-        HttpEntity<Void> headers = authorizationService.getHeaders(userId);
+        HttpEntity<Void> headers = authorizationService.getEntityWithAuthorizationHeader(userId);
         HttpEntity<Profile> httpEntity = new HttpEntity<>(profile, headers.getHeaders());
         return restTemplate.postForObject("http://localhost:8085/api/translate/profile", httpEntity, Profile.class);
     }

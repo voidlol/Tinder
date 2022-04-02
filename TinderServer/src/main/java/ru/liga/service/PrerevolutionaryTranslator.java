@@ -88,7 +88,7 @@ public class PrerevolutionaryTranslator {
         if (!VOWELS_LOWER.contains(Character.toLowerCase(word.charAt(lastLetterIndex)))
                 && word.charAt(lastLetterIndex) != 'ь'
                 && ALPHABET.indexOf(word.charAt(lastLetterIndex)) != -1) {
-            return word + 'ъ';
+            return word.substring(0, lastLetterIndex + 1) + 'ъ' + word.substring(lastLetterIndex + 1);
         }
         return word;
     }

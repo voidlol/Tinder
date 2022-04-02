@@ -11,7 +11,6 @@ import ru.liga.domain.Profile;
 import ru.liga.service.AuthorizationService;
 
 import java.util.List;
-import java.util.Set;
 
 @AllArgsConstructor
 @Component
@@ -22,31 +21,31 @@ public class ProfileClient {
     private final AuthorizationService authorizationService;
 
     public Profile getUserProfile(Long userId) {
-        HttpEntity<Void> requestEntity = authorizationService.getHeaders(userId);
+        HttpEntity<Void> requestEntity = authorizationService.getEntityWithAuthorizationHeader(userId);
         ResponseEntity<Profile> exchange = restTemplate.exchange(profileConfig.getProfileUrl(), HttpMethod.GET, requestEntity, Profile.class);
         return exchange.getBody();
     }
 
     public List<Profile> getValidProfiles(Long userId) {
-        HttpEntity<Void> requestEntity = authorizationService.getHeaders(userId);
+        HttpEntity<Void> requestEntity = authorizationService.getEntityWithAuthorizationHeader(userId);
         ResponseEntity<Profile[]> exchange = restTemplate.exchange(profileConfig.getProfileUrl() + "/search", HttpMethod.GET, requestEntity, Profile[].class);
         return List.of(exchange.getBody());
     }
 
     public boolean likeProfile(Long userId, Long profileId) {
-        HttpEntity<Void> requestEntity = authorizationService.getHeaders(userId);
+        HttpEntity<Void> requestEntity = authorizationService.getEntityWithAuthorizationHeader(userId);
         restTemplate.postForObject(String.format(profileConfig.getLikeUrl(), profileId), requestEntity, String.class);
         return restTemplate.exchange(String.format(profileConfig.getProfileUrl() + "/isReciprocity/%d", profileId), HttpMethod.GET, requestEntity, Boolean.class).getBody();
     }
 
-    public Set<Profile> getFavorites(Long userId) {
-        HttpEntity<Void> requestEntity = authorizationService.getHeaders(userId);
+    public List<Profile> getFavorites(Long userId) {
+        HttpEntity<Void> requestEntity = authorizationService.getEntityWithAuthorizationHeader(userId);
         ResponseEntity<Profile[]> exchange = restTemplate.exchange(profileConfig.getWeLikeUrl(), HttpMethod.GET, requestEntity, Profile[].class);
-        return Set.of(exchange.getBody());
+        return List.of(exchange.getBody());
     }
 
     public void unlikeProfile(Long userId, Long profileId) {
-        HttpEntity<Void> requestEntity = authorizationService.getHeaders(userId);
+        HttpEntity<Void> requestEntity = authorizationService.getEntityWithAuthorizationHeader(userId);
         restTemplate.postForObject(String.format(profileConfig.getUnlikeUrl(), profileId), requestEntity, String.class);
     }
 }

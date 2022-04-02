@@ -1,8 +1,6 @@
 package ru.liga.domain;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Data
 public class UserAuth {

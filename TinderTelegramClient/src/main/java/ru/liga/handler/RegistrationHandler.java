@@ -2,7 +2,7 @@ package ru.liga.handler;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -10,6 +10,9 @@ import ru.liga.botstate.BotState;
 import ru.liga.client.cache.UserDetailsCache;
 import ru.liga.domain.Profile;
 import ru.liga.domain.User;
+
+import java.util.Collections;
+import java.util.List;
 
 @AllArgsConstructor
 @Component
@@ -19,12 +22,12 @@ public class RegistrationHandler implements InputHandler {
     private static final String NOT_MATHCING_PASSWORDS = "Password doesnt match!\nEnter new password:";
 
     @Override
-    public BotApiMethod<?> handle(Message message) {
+    public List<PartialBotApiMethod<?>> handle(Message message) {
         return processMessage(message);
     }
 
     @Override
-    public BotApiMethod<?> handleCallBack(CallbackQuery callbackQuery) {
+    public List<PartialBotApiMethod<?>> handleCallBack(CallbackQuery callbackQuery) {
         return null;
     }
 
@@ -33,7 +36,7 @@ public class RegistrationHandler implements InputHandler {
         return BotState.REGISTER;
     }
 
-    private SendMessage processMessage(Message message) {
+    private List<PartialBotApiMethod<?>> processMessage(Message message) {
         Long userId = message.getFrom().getId();
         BotState currentBotState = userDetailsCache.getCurrentBotState(userId);
         SendMessage reply = new SendMessage();
@@ -62,6 +65,6 @@ public class RegistrationHandler implements InputHandler {
 
                 break;
         }
-        return reply;
+        return Collections.singletonList(reply);
     }
 }

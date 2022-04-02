@@ -16,10 +16,6 @@ public class ScrollingWrapper {
         this.listToScroll = new LinkedList<>(listToScroll);
     }
 
-    public ScrollingWrapper(Set<Profile> profileSet) {
-        listToScroll = new LinkedList<>(profileSet);
-    }
-
     public Profile getCurrentProfile() {
         return listToScroll.get(currentIndex);
     }
@@ -34,10 +30,6 @@ public class ScrollingWrapper {
 
     public int getSize() {
         return listToScroll.size();
-    }
-
-    public int getCurrent() {
-        return currentIndex;
     }
 
     public boolean isEmpty() {

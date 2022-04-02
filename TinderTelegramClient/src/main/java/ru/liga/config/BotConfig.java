@@ -15,19 +15,19 @@ import ru.liga.botapi.TinderBot;
 @ConfigurationProperties(prefix = "bot")
 public class BotConfig {
 
-    private String webHookPath;
-    private String userName;
-    private String botToken;
-
-    @Bean
-    public TinderBot createTinderBot(TelegramFacade telegramFacade) {
-        SetWebhook setWebhook = SetWebhook.builder().url(webHookPath).build();
-
-        TinderBot tinderBot = new TinderBot(setWebhook, telegramFacade);
-        tinderBot.setBotUsername(userName);
-        tinderBot.setBotToken(botToken);
-
-        return tinderBot;
-    }
+//    private String webHookPath;
+//    private String userName;
+//    private String botToken;
+//
+//    @Bean
+//    public TinderBot createTinderBot(TelegramFacade telegramFacade) {
+//        SetWebhook setWebhook = SetWebhook.builder().url(webHookPath).build();
+//
+//        TinderBot tinderBot = new TinderBot(setWebhook, telegramFacade);
+//        tinderBot.setBotUsername(userName);
+//        tinderBot.setBotToken(botToken);
+//
+//        return tinderBot;
+//    }
 
 }

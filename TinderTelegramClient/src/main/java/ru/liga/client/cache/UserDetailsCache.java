@@ -1,13 +1,11 @@
 package ru.liga.client.cache;
 
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.liga.botstate.BotState;
-import ru.liga.client.registration.RegistrationClient;
 import ru.liga.client.registration.UserClient;
-import ru.liga.domain.User;
 import ru.liga.domain.ScrollingWrapper;
+import ru.liga.domain.User;
 
 import java.util.HashMap;
 import java.util.Map;

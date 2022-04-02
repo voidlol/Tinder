@@ -2,6 +2,7 @@ package ru.liga.botapi;
 
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.liga.botstate.BotState;
@@ -20,11 +21,11 @@ public class BotStateContext {
         handlers.forEach(handler -> this.inputHandlers.put(handler.getBotState(), handler));
     }
 
-    public BotApiMethod<?> processInputMessage(BotState botState, Message message) {
+    public List<PartialBotApiMethod<?>> processInputMessage(BotState botState, Message message) {
         return findInputHandler(botState).handle(message);
     }
 
-    public BotApiMethod<?> processCallBack(BotState botState, CallbackQuery callbackQuery) {
+    public List<PartialBotApiMethod<?>> processCallBack(BotState botState, CallbackQuery callbackQuery) {
         return findInputHandler(botState).handleCallBack(callbackQuery);
     }
 

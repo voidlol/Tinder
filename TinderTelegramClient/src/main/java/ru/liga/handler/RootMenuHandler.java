@@ -1,13 +1,16 @@
 package ru.liga.handler;
 
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.liga.botstate.BotState;
 import ru.liga.client.cache.UserDetailsCache;
 import ru.liga.keyboards.KeyboardService;
+
+import java.util.Collections;
+import java.util.List;
 
 @Component
 public class RootMenuHandler implements InputHandler {
@@ -21,23 +24,23 @@ public class RootMenuHandler implements InputHandler {
     }
 
     @Override
-    public BotApiMethod<?> handle(Message message) {
+    public List<PartialBotApiMethod<?>> handle(Message message) {
         return processMessage(message);
     }
 
     @Override
-    public BotApiMethod<?> handleCallBack(CallbackQuery callbackQuery) {
+    public List<PartialBotApiMethod<?>> handleCallBack(CallbackQuery callbackQuery) {
         return null;
     }
 
-    private SendMessage processMessage(Message message) {
+    private List<PartialBotApiMethod<?>> processMessage(Message message) {
         Long userId = message.getFrom().getId();
         SendMessage reply = new SendMessage();
         reply.setReplyMarkup(keyboardService.getWelcomeKeyboard());
         reply.setChatId(message.getChatId().toString());
         reply.setText(BotState.WELCOME.getMessage());
         userDetailsCache.changeUserState(userId, BotState.WELCOME);
-        return reply;
+        return Collections.singletonList(reply);
     }
 
     @Override

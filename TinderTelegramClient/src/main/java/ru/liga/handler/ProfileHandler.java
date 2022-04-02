@@ -2,7 +2,7 @@ package ru.liga.handler;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -17,6 +17,8 @@ import ru.liga.domain.User;
 import ru.liga.domain.UserAuth;
 import ru.liga.keyboards.KeyboardService;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -35,18 +37,19 @@ public class ProfileHandler implements InputHandler {
     }
 
     @Override
-    public SendMessage handle(Message message) {
+    public List<PartialBotApiMethod<?>> handle(Message message) {
         return processMessage(message);
     }
 
     @Override
-    public BotApiMethod<?> handleCallBack(CallbackQuery callbackQuery) {
+    public List<PartialBotApiMethod<?>> handleCallBack(CallbackQuery callbackQuery) {
         Long userId = callbackQuery.getFrom().getId();
         BotState currentBotState = userDetailsCache.getCurrentBotState(userId);
         User user = userDetailsCache.getUser(userId);
         Profile profile = user.getProfile();
         SendMessage reply = new SendMessage();
         reply.setChatId(callbackQuery.getMessage().getChatId().toString());
+        List<PartialBotApiMethod<?>> methods = new ArrayList<>();
 
         if (currentBotState == BotState.PROFILE_FILLING_ASK_GENDER) {
             SexType userSex = SexType.valueOf(callbackQuery.getData());
@@ -66,11 +69,13 @@ public class ProfileHandler implements InputHandler {
             userSessionCache.addTokenForUser(userId, token);
             userDetailsCache.changeUserState(userId, BotState.IN_MENU);
             reply.setText(profile.toString());
+            reply.setReplyMarkup(keyboardService.getInMenuKeyboard2());
         }
-        return reply;
+        methods.add(reply);
+        return methods;
     }
 
-    private SendMessage processMessage(Message message) {
+    private List<PartialBotApiMethod<?>> processMessage(Message message) {
         Long userId = message.getFrom().getId();
         BotState currentBotState = userDetailsCache.getCurrentBotState(userId);
         User user = userDetailsCache.getUser(userId);
@@ -78,6 +83,7 @@ public class ProfileHandler implements InputHandler {
         String text = message.getText();
         SendMessage reply = new SendMessage();
         reply.setChatId(message.getChatId().toString());
+        List<PartialBotApiMethod<?>> methods = new ArrayList<>();
 
         switch (currentBotState) {
             case PROFILE_FILLING_ASK_NAME:
@@ -93,7 +99,7 @@ public class ProfileHandler implements InputHandler {
                 userDetailsCache.changeUserState(userId, BotState.PROFILE_FILLING_ASK_LOOKING_FOR);
                 break;
         }
-
-        return reply;
+        methods.add(reply);
+        return methods;
     }
 }

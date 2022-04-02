@@ -3,12 +3,16 @@ package ru.liga.botapi;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.liga.botstate.BotState;
 import ru.liga.client.cache.UserDetailsCache;
 import ru.liga.client.cache.UserSessionCache;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @AllArgsConstructor
 @Component
@@ -18,8 +22,8 @@ public class TelegramFacade {
     private final UserSessionCache userSessionCache;
     private final UserDetailsCache userDetailsCache;
 
-    public BotApiMethod<?> handleUpdate(Update update) {
-        BotApiMethod<?> reply = null;
+    public List<PartialBotApiMethod<?>> handleUpdate(Update update) {
+        List<PartialBotApiMethod<?>> reply = new ArrayList<>();
 
         if (update.hasCallbackQuery()) {
             reply = handleCallBack(update.getCallbackQuery());
@@ -32,7 +36,7 @@ public class TelegramFacade {
         return reply;
     }
 
-    private BotApiMethod<?> handleMessage(Message message) {
+    private List<PartialBotApiMethod<?>> handleMessage(Message message) {
         String inputText = message.getText();
         long userId = message.getFrom().getId();
         BotState botState = userDetailsCache.getCurrentBotState(userId);
@@ -44,8 +48,9 @@ public class TelegramFacade {
         return botStateContext.processInputMessage(botState, message);
     }
 
-    private BotApiMethod<?> handleCallBack(CallbackQuery callbackQuery) {
+    private List<PartialBotApiMethod<?>> handleCallBack(CallbackQuery callbackQuery) {
         BotState userBotState = userDetailsCache.getCurrentBotState(callbackQuery.getFrom().getId());
         return botStateContext.processCallBack(userBotState, callbackQuery);
     }
+
 }

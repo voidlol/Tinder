@@ -1,79 +1,70 @@
 package ru.liga.handler;
 
-import org.checkerframework.checker.units.qual.A;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.liga.botstate.BotState;
 import ru.liga.client.cache.UserDetailsCache;
+import ru.liga.client.profile.ImageClient;
 import ru.liga.client.profile.ProfileClient;
 import ru.liga.domain.Profile;
 import ru.liga.domain.ScrollingWrapper;
-import ru.liga.keyboards.KeyboardService;
+import ru.liga.service.BotMethodService;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 @Component
+@RequiredArgsConstructor
 public class InMenuHandler implements InputHandler {
 
     private final ProfileClient profileClient;
     private final UserDetailsCache userDetailsCache;
-    private final KeyboardService keyboardService;
-
-    public InMenuHandler(ProfileClient profileClient, UserDetailsCache userDetailsCache, KeyboardService keyboardService) {
-        this.profileClient = profileClient;
-        this.userDetailsCache = userDetailsCache;
-        this.keyboardService = keyboardService;
-    }
+    private final ImageClient imageClient;
+    private final BotMethodService botMethodService;
 
     @Override
-    public BotApiMethod<?> handle(Message message) {
+    public List<PartialBotApiMethod<?>> handle(Message message) {
         return null;
     }
 
     @Override
-    public BotApiMethod<?> handleCallBack(CallbackQuery callbackQuery) {
+    public List<PartialBotApiMethod<?>> handleCallBack(CallbackQuery callbackQuery) {
         Long userId = callbackQuery.getFrom().getId();
         Long chatId = callbackQuery.getMessage().getChatId();
         String data = callbackQuery.getData();
 
-        EditMessageText reply = new EditMessageText();
-        reply.setChatId(chatId.toString());
-        reply.setMessageId(callbackQuery.getMessage().getMessageId());
-
         switch (data) {
             case "SEARCH":
-                List<Profile> validProfiles = profileClient.getValidProfiles(userId);
-                if (validProfiles.isEmpty()) {
-                    return sendCallbackQuery("Не осталось анкет :(", callbackQuery);
-                }
-                ScrollingWrapper searchScroller = new ScrollingWrapper(validProfiles);
-                userDetailsCache.addScroller(userId, searchScroller);
-                reply.setText(searchScroller.getCurrentProfile().toString());
-                reply.setReplyMarkup(keyboardService.getSearchingKeyboard());
-                userDetailsCache.changeUserState(userId, BotState.SEARCHING);
-                return reply;
+                return getReply(profileClient.getValidProfiles(userId), BotState.SEARCHING, callbackQuery);
             case "FAVORITES":
-                Set<Profile> favorites = profileClient.getFavorites(userId);
-                if (favorites.isEmpty()) {
-                    return sendCallbackQuery("Не избранных анкет :(", callbackQuery);
-                }
-                ScrollingWrapper favoritesScroller = new ScrollingWrapper(favorites);
-                userDetailsCache.addScroller(userId, favoritesScroller);
-                reply.setText(favoritesScroller.getCurrentProfile().toString());
-                reply.setReplyMarkup(keyboardService.getFavoritesKeyboard());
-                userDetailsCache.changeUserState(userId, BotState.VIEWING);
-                return reply;
+                return getReply(profileClient.getFavorites(userId), BotState.VIEWING, callbackQuery);
             default:
-                reply.setText(profileClient.getUserProfile(userId).toString());
-                reply.setReplyMarkup(keyboardService.getInMenuKeyboard2());
-                return reply;
+                Profile userProfile = profileClient.getUserProfile(userId);
+                File imageForProfile = imageClient.getImageForProfile(userProfile);
+                return List.of(botMethodService.getDeleteMethod(chatId, callbackQuery.getMessage().getMessageId()),
+                        botMethodService.getSendPhotoMethod(imageForProfile, chatId, BotState.IN_MENU));
         }
+    }
+
+    private List<PartialBotApiMethod<?>> getReply(List<Profile> list, BotState targetState, CallbackQuery callbackQuery) {
+        List<PartialBotApiMethod<?>> methods = new ArrayList<>();
+        String popUpText = targetState == BotState.SEARCHING ? "Нет подходящих анкет :(" : "Нет избранных анкет :(";
+        if (list.isEmpty()) {
+            return Collections.singletonList(botMethodService.getPopUpMethod(callbackQuery, popUpText));
+        }
+        methods.add(botMethodService.getDeleteMethod(callbackQuery.getMessage().getChatId(), callbackQuery.getMessage().getMessageId()));
+        ScrollingWrapper searchScroller = new ScrollingWrapper(list);
+        userDetailsCache.addScroller(callbackQuery.getFrom().getId(), searchScroller);
+        Profile currentProfile = searchScroller.getCurrentProfile();
+        File imageForProfile = imageClient.getImageForProfile(currentProfile);
+        methods.add(botMethodService.getSendPhotoMethod(imageForProfile, callbackQuery.getMessage().getChatId(), targetState));
+        userDetailsCache.changeUserState(callbackQuery.getFrom().getId(), targetState);
+        return methods;
     }
 
     @Override
