@@ -9,10 +9,7 @@ import ru.liga.botstate.BotState;
 import ru.liga.client.cache.UserDetailsCache;
 import ru.liga.client.cache.UserSessionCache;
 import ru.liga.client.login.LoginClient;
-import ru.liga.client.profile.ImageClient;
-import ru.liga.client.profile.ProfileClient;
 import ru.liga.domain.UserAuth;
-import ru.liga.keyboards.KeyboardService;
 import ru.liga.service.BotMethodService;
 
 import java.util.ArrayList;

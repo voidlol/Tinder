@@ -12,8 +12,8 @@ import ru.liga.client.profile.ImageClient;
 import ru.liga.client.profile.ProfileClient;
 import ru.liga.domain.Profile;
 import ru.liga.domain.ScrollingWrapper;
-import ru.liga.keyboards.KeyboardService;
 import ru.liga.service.BotMethodService;
+import ru.liga.service.ProfileService;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -26,8 +26,7 @@ import java.util.List;
 public class FavoritesHandler implements InputHandler {
 
     private final UserDetailsCache userDetailsCache;
-    private final ProfileClient profileClient;
-    private final KeyboardService keyboardService;
+    private final ProfileService profileService;
     private final BotMethodService botMethodService;
     private final ImageClient imageClient;
 
@@ -46,10 +45,10 @@ public class FavoritesHandler implements InputHandler {
 
         if ("DISLIKE".equals(queryData)) {
             Profile currentProfile = scroller.getCurrentProfile();
-            profileClient.unlikeProfile(userId, currentProfile.getId());
-            return getReply(userId, scroller, callbackQuery);
+            profileService.unlikeProfile(userId, currentProfile.getId());
+            return dislikeMethods(userId, scroller, callbackQuery);
         } else if ("NEXT".equals(queryData)) {
-            return getReply(userId, scroller, callbackQuery);
+            return nextMethods(userId, scroller, callbackQuery);
         } else {
             userDetailsCache.changeUserState(userId, BotState.IN_MENU);
             return List.of(botMethodService.getDeleteMethod(chatId, callbackQuery.getMessage().getMessageId()),
@@ -57,29 +56,51 @@ public class FavoritesHandler implements InputHandler {
         }
     }
 
-    private List<PartialBotApiMethod<?>> getReply(Long userId, ScrollingWrapper scroller, CallbackQuery callbackQuery) {
+    private List<PartialBotApiMethod<?>> dislikeMethods(Long userId, ScrollingWrapper scroller, CallbackQuery callbackQuery) {
+        File profileImage;
+        if (scroller.getSize() == 1 && scroller.isLast()) {
+            return returnToMenu(userId, callbackQuery);
+        } else if (scroller.isLast()) {
+            scroller = new ScrollingWrapper(profileService.getFavorites(userId));
+            if (scroller.isEmpty()) {
+                return returnToMenu(userId, callbackQuery);
+            }
+            userDetailsCache.addScroller(userId, scroller);
+            Profile profile = scroller.getCurrentProfile();
+            profileImage = imageClient.getImageForProfile(profile);
+        } else {
+            Profile profile = scroller.getNextProfile();
+            profileImage = imageClient.getImageForProfile(profile);
+        }
+        return Collections.singletonList(botMethodService.getEditMessageMediaMethod(profileImage, BotState.VIEWING, callbackQuery));
+    }
+
+    private List<PartialBotApiMethod<?>> nextMethods(Long userId, ScrollingWrapper scroller, CallbackQuery callbackQuery) {
         if (scroller.getSize() == 1) {
             return Collections.emptyList();
         }
-        List<PartialBotApiMethod<?>> methods = new ArrayList<>();
+        File profileImage;
         if (scroller.isLast()) {
-            scroller = new ScrollingWrapper(profileClient.getFavorites(userId));
+            scroller = new ScrollingWrapper(profileService.getFavorites(userId));
             userDetailsCache.addScroller(userId, scroller);
             if (scroller.isEmpty()) {
-                methods.add(botMethodService.getPopUpMethod(callbackQuery, "Не осталось избранных :("));
-                methods.add(botMethodService.getDeleteMethod(callbackQuery.getMessage().getChatId(), callbackQuery.getMessage().getMessageId()));
-                methods.add(botMethodService.getMenuMethod(callbackQuery.getMessage().getChatId()));
-                userDetailsCache.changeUserState(userId, BotState.IN_MENU);
-                return methods;
+                return returnToMenu(userId, callbackQuery);
             }
             Profile currentProfile = scroller.getCurrentProfile();
-            File imageForProfile = imageClient.getImageForProfile(currentProfile);
-            methods.add(botMethodService.getEditMessageMediaMethod(imageForProfile, BotState.VIEWING, callbackQuery));
+            profileImage = imageClient.getImageForProfile(currentProfile);
         } else {
             Profile nextProfile = scroller.getNextProfile();
-            File imageForProfile = imageClient.getImageForProfile(nextProfile);
-            methods.add(botMethodService.getEditMessageMediaMethod(imageForProfile, BotState.VIEWING, callbackQuery));
+            profileImage = imageClient.getImageForProfile(nextProfile);
         }
+        return Collections.singletonList(botMethodService.getEditMessageMediaMethod(profileImage, BotState.VIEWING, callbackQuery));
+    }
+
+    private List<PartialBotApiMethod<?>> returnToMenu(Long userId, CallbackQuery callbackQuery) {
+        List<PartialBotApiMethod<?>> methods = new ArrayList<>();
+        methods.add(botMethodService.getPopUpMethod(callbackQuery, "Не осталось избранных :("));
+        userDetailsCache.changeUserState(userId, BotState.IN_MENU);
+        methods.add(botMethodService.getDeleteMethod(callbackQuery.getMessage().getChatId(), callbackQuery.getMessage().getMessageId()));
+        methods.add(botMethodService.getMenuMethod(callbackQuery.getMessage().getChatId()));
         return methods;
     }
 

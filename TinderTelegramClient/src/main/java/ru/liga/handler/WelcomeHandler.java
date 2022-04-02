@@ -10,7 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.liga.botstate.BotState;
 import ru.liga.client.cache.UserDetailsCache;
 import ru.liga.keyboards.ButtonNameEnum;
-import ru.liga.keyboards.KeyboardService;
+import ru.liga.service.KeyboardService;
 
 import java.util.Collections;
 import java.util.List;

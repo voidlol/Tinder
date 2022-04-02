@@ -10,16 +10,13 @@ import ru.liga.service.AuthorizationService;
 public class TranslatorClient {
 
     private final RestTemplate restTemplate;
-    private final AuthorizationService authorizationService;
 
-    public TranslatorClient(RestTemplate restTemplate, AuthorizationService authorizationService) {
+    public TranslatorClient(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
-        this.authorizationService = authorizationService;
     }
 
-    public Profile getTranslatedProfile(Long userId, Profile profile) {
-        HttpEntity<Void> headers = authorizationService.getEntityWithAuthorizationHeader(userId);
-        HttpEntity<Profile> httpEntity = new HttpEntity<>(profile, headers.getHeaders());
+    public Profile getTranslatedProfile(Profile profile) {
+        HttpEntity<Profile> httpEntity = new HttpEntity<>(profile);
         return restTemplate.postForObject("http://localhost:8085/api/translate/profile", httpEntity, Profile.class);
     }
 }

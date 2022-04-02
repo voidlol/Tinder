@@ -15,7 +15,9 @@ import ru.liga.domain.Profile;
 import ru.liga.domain.SexType;
 import ru.liga.domain.User;
 import ru.liga.domain.UserAuth;
-import ru.liga.keyboards.KeyboardService;
+import ru.liga.service.BotMethodService;
+import ru.liga.service.KeyboardService;
+import ru.liga.service.ProfileService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +32,7 @@ public class ProfileHandler implements InputHandler {
     private final LoginClient loginClient;
     private final KeyboardService keyboardService;
     private final UserSessionCache userSessionCache;
+    private final BotMethodService botMethodService;
 
     @Override
     public BotState getBotState() {
@@ -68,8 +71,7 @@ public class ProfileHandler implements InputHandler {
             String token = loginClient.login(new UserAuth(userId, user.getPassword()));
             userSessionCache.addTokenForUser(userId, token);
             userDetailsCache.changeUserState(userId, BotState.IN_MENU);
-            reply.setText(profile.toString());
-            reply.setReplyMarkup(keyboardService.getInMenuKeyboard2());
+            reply = botMethodService.getMenuMethod(callbackQuery.getMessage().getChatId());
         }
         methods.add(reply);
         return methods;

@@ -19,7 +19,6 @@ import java.util.List;
 public class TelegramFacade {
 
     private final BotStateContext botStateContext;
-    private final UserSessionCache userSessionCache;
     private final UserDetailsCache userDetailsCache;
 
     public List<PartialBotApiMethod<?>> handleUpdate(Update update) {

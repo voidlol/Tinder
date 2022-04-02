@@ -5,12 +5,10 @@ public enum ButtonNameEnum {
     LOGIN_BUTTON("Авторизация"),
     MENU_BUTTON("Меню"),
     SEARCH_BUTTON("Поиск"),
-    PROFILE_BUTTON("Профиль"),
-    BACK_BUTTON("Назад"),
-    FAVORITES_BUTTON("Избранные");
+    PROFILE_BUTTON("Анкета"),
+    FAVORITES_BUTTON("Любимцы");
 
     private final String buttonName;
-
 
     ButtonNameEnum(String buttonName) {
         this.buttonName = buttonName;

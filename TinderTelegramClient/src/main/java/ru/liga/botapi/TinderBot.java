@@ -1,36 +1,58 @@
 package ru.liga.botapi;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
+import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
-import org.telegram.telegrambots.meta.api.methods.updates.SetWebhook;
-import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageMedia;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.telegram.telegrambots.starter.SpringWebhookBot;
 
-import java.io.File;
+@Component
+@RequiredArgsConstructor
+public class TinderBot extends TelegramLongPollingBot {
 
-@Getter
-@Setter
-public class TinderBot extends SpringWebhookBot {
-
+    @Value("${bot.userName}")
     private String botUsername;
-    private String botToken;
-    private String botPath;
 
+    @Value("${bot.botToken}")
+    private String botToken;
     private final TelegramFacade telegramFacade;
 
-    public TinderBot(SetWebhook setWebhook, TelegramFacade telegramFacade) {
-        super(setWebhook);
-        this.telegramFacade = telegramFacade;
+    @Override
+    public String getBotUsername() {
+        return botUsername;
     }
 
     @Override
-    public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
-        //return telegramFacade.handleUpdate(update);
-        return null;
+    public String getBotToken() {
+        return botToken;
     }
 
+    @Override
+    public void onUpdateReceived(Update update) {
+        for (PartialBotApiMethod<?> method : telegramFacade.handleUpdate(update)) {
+            executeAnyMethod(method);
+        }
+    }
+
+    public void executeAnyMethod(PartialBotApiMethod<?> method) {
+        try {
+            if (method == null) return;
+            else if (method instanceof SendPhoto) execute((SendPhoto) method);
+            else if (method instanceof DeleteMessage) execute((DeleteMessage) method);
+            else if (method instanceof AnswerCallbackQuery) execute((AnswerCallbackQuery) method);
+            else if (method instanceof SendMessage) execute((SendMessage) method);
+            else if (method instanceof EditMessageText) execute((EditMessageText) method);
+            else if (method instanceof EditMessageMedia) execute((EditMessageMedia) method);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -9,9 +9,11 @@ import ru.liga.botstate.BotState;
 import ru.liga.client.cache.UserDetailsCache;
 import ru.liga.client.profile.ImageClient;
 import ru.liga.client.profile.ProfileClient;
+import ru.liga.client.profile.TranslatorClient;
 import ru.liga.domain.Profile;
 import ru.liga.domain.ScrollingWrapper;
 import ru.liga.service.BotMethodService;
+import ru.liga.service.ProfileService;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,10 +24,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class InMenuHandler implements InputHandler {
 
-    private final ProfileClient profileClient;
     private final UserDetailsCache userDetailsCache;
     private final ImageClient imageClient;
     private final BotMethodService botMethodService;
+    private final ProfileService profileService;
 
     @Override
     public List<PartialBotApiMethod<?>> handle(Message message) {
@@ -40,11 +42,11 @@ public class InMenuHandler implements InputHandler {
 
         switch (data) {
             case "SEARCH":
-                return getReply(profileClient.getValidProfiles(userId), BotState.SEARCHING, callbackQuery);
+                return getReply(profileService.getValidProfiles(userId), BotState.SEARCHING, callbackQuery);
             case "FAVORITES":
-                return getReply(profileClient.getFavorites(userId), BotState.VIEWING, callbackQuery);
+                return getReply(profileService.getFavorites(userId), BotState.VIEWING, callbackQuery);
             default:
-                Profile userProfile = profileClient.getUserProfile(userId);
+                Profile userProfile = profileService.getUserProfile(userId);
                 File imageForProfile = imageClient.getImageForProfile(userProfile);
                 return List.of(botMethodService.getDeleteMethod(chatId, callbackQuery.getMessage().getMessageId()),
                         botMethodService.getSendPhotoMethod(imageForProfile, chatId, BotState.IN_MENU));

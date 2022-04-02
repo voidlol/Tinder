@@ -3,7 +3,6 @@ package ru.liga.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
-import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
@@ -13,7 +12,6 @@ import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.liga.botstate.BotState;
-import ru.liga.keyboards.KeyboardService;
 
 import java.io.File;
 
@@ -73,7 +71,7 @@ public class BotMethodService {
         switch (state) {
             case SEARCHING: return keyboardService.getSearchingKeyboard();
             case VIEWING: return keyboardService.getFavoritesKeyboard();
-            default: return keyboardService.getInMenuKeyboard2();
+            default: return keyboardService.getInMenuKeyboard();
         }
     }
 
