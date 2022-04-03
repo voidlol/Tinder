@@ -10,15 +10,12 @@ import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageMedia;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.liga.botstate.BotState;
 import ru.liga.client.cache.UserDetailsCache;
 
-import java.util.Collections;
 import java.util.Set;
 
 @Component
@@ -26,10 +23,10 @@ import java.util.Set;
 @Slf4j
 public class TinderBot extends TelegramLongPollingBot {
 
-    @Value("${bot.userName}")
+    @Value("${botUserName}")
     private String botUsername;
 
-    @Value("${bot.botToken}")
+    @Value("${botToken}")
     private String botToken;
     private final TelegramFacade telegramFacade;
     private final UserDetailsCache userDetailsCache;
@@ -73,11 +70,8 @@ public class TinderBot extends TelegramLongPollingBot {
             else if (method instanceof DeleteMessage) execute((DeleteMessage) method);
             else if (method instanceof AnswerCallbackQuery) execute((AnswerCallbackQuery) method);
             else if (method instanceof SendMessage) return execute((SendMessage) method);
-            else if (method instanceof EditMessageText) execute((EditMessageText) method);
-            else if (method instanceof EditMessageMedia) execute((EditMessageMedia) method);
         } catch (TelegramApiException e) {
             log.info(e.getMessage());
-
         }
         return null;
     }

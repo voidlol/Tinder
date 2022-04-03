@@ -1,21 +1,20 @@
 package ru.liga.botapi;
 
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.liga.botstate.BotState;
 import ru.liga.handler.InputHandler;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
 @Component
 public class BotStateContext {
 
-    private final Map<BotState, InputHandler> inputHandlers = new HashMap<>();
+    private final Map<BotState, InputHandler> inputHandlers = new EnumMap<>(BotState.class);
 
     public BotStateContext(List<InputHandler> handlers) {
         handlers.forEach(handler -> this.inputHandlers.put(handler.getBotState(), handler));

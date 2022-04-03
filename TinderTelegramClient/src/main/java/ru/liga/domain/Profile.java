@@ -16,4 +16,8 @@ public class Profile {
     @ToString.Exclude
     private Set<SexType> lookingFor;
 
+
+    public String getCaption() {
+        return this.getSexType().getTranslatedName() + ", " + this.getName();
+    }
 }

@@ -3,13 +3,13 @@ package ru.liga.handler;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.liga.botstate.BotState;
 import ru.liga.client.cache.UserDetailsCache;
-import ru.liga.keyboards.ButtonNameEnum;
+import ru.liga.service.BotMethodService;
 import ru.liga.service.KeyboardService;
+import ru.liga.service.TextMessageService;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,6 +20,8 @@ public class WelcomeHandler implements InputHandler {
 
     private final UserDetailsCache userDetailsCache;
     private final KeyboardService keyboardService;
+    private final TextMessageService textMessageService;
+    private final BotMethodService botMethodService;
 
     @Override
     public List<PartialBotApiMethod<?>> handle(Message message) {
@@ -39,22 +41,36 @@ public class WelcomeHandler implements InputHandler {
     private List<PartialBotApiMethod<?>> processMessage(Message message) {
         String text = message.getText();
         Long userId = message.getFrom().getId();
-        SendMessage reply = new SendMessage();
-        reply.setChatId(message.getChatId().toString());
+        Long chatId = message.getChatId();
 
-        if (text.equals(ButtonNameEnum.LOGIN_BUTTON.getButtonName())) {
-            userDetailsCache.changeUserState(userId, BotState.LOGIN_ASK_PASSWORD);
-            reply.setText(BotState.REGISTER_ASK_PASSWORD.getMessage());
-        } else if (text.equals(ButtonNameEnum.REGISTRATION_BUTTON.getButtonName())) {
-            if (userDetailsCache.isRegistered(userId)) {
-                reply.setText(BotState.REGISTERED.getMessage());
-                reply.setReplyMarkup(keyboardService.getWelcomeKeyboard());
+        if (text.equals(textMessageService.getText("button.login"))) {
+            userDetailsCache.addMessageToDelete(userId, message.getMessageId());
+            if (!userDetailsCache.isRegistered(userId)) {
+                return Collections.singletonList(botMethodService.getSendMessage(
+                        chatId,
+                        textMessageService.getText("reply.noAccount"),
+                        keyboardService.getWelcomeKeyboard()));
             } else {
-                reply.setText(BotState.REGISTER_ASK_PASSWORD.getMessage());
-                userDetailsCache.changeUserState(userId, BotState.REGISTER_ASK_PASSWORD);
+                userDetailsCache.changeUserState(userId, BotState.LOGIN_ASK_PASSWORD);
+                return Collections.singletonList(botMethodService.getSendMessage(
+                        chatId,
+                        textMessageService.getText("reply.askPassword")));
             }
+        } else if (text.equals(textMessageService.getText("button.registration"))) {
+            userDetailsCache.addMessageToDelete(userId, message.getMessageId());
+            if (userDetailsCache.isRegistered(userId)) {
+                return Collections.singletonList(botMethodService.getSendMessage(
+                        chatId,
+                        textMessageService.getText("reply.alreadyRegistered"),
+                        keyboardService.getWelcomeKeyboard()));
+            } else {
+                userDetailsCache.changeUserState(userId, BotState.REGISTER_ASK_PASSWORD);
+                return Collections.singletonList(botMethodService.getSendMessage(
+                        chatId,
+                        textMessageService.getText("reply.askPassword")));
+            }
+        } else {
+            return Collections.singletonList(botMethodService.getDeleteMethod(chatId, message.getMessageId()));
         }
-        userDetailsCache.addMessageToDelete(userId, message.getMessageId());
-        return Collections.singletonList(reply);
     }
 }

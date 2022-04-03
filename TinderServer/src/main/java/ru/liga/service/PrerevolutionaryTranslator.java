@@ -9,7 +9,7 @@ import java.util.StringJoiner;
 @Service
 public class PrerevolutionaryTranslator {
 
-    private static final Set<Character> VOWELS_LOWER = Set.of('а', 'е', 'ё', 'и', 'й', 'о', 'у', 'э', 'ю', 'я');
+    private static final Set<Character> VOWELS_LOWER = Set.of('а', 'е', 'ё', 'и', 'й', 'о', 'у', 'ы', 'э', 'ю', 'я');
     private static final String ALPHABET = "АаБбВвГгДдЕеЁёЖжЗзИиЙйКкЛлМмНнОоПпРрСсТтУуФфЦцЧчШшЩщЪъЫыЬьЭэЮюЯя";
 
     private static final Set<String> FITA_WORDS = Set.of("Агафья", "Анфим", "Афанасий", "Афина", "Варфоломей", "Голиаф",

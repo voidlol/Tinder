@@ -49,4 +49,9 @@ public class ProfileService implements ProfileClient {
     public void unlikeProfile(Long userId, Long profileId) {
         profileClient.unlikeProfile(userId, profileId);
     }
+
+    @Override
+    public String getRelation(Long userId, Long profileId) {
+        return profileClient.getRelation(userId, profileId);
+    }
 }

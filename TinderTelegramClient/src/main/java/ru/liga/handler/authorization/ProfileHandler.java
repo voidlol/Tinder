@@ -1,24 +1,28 @@
-package ru.liga.handler;
+package ru.liga.handler.authorization;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.liga.botstate.BotState;
 import ru.liga.client.cache.UserDetailsCache;
 import ru.liga.client.cache.UserSessionCache;
 import ru.liga.client.login.LoginClient;
+import ru.liga.client.profile.ImageClient;
+import ru.liga.client.profile.TranslatorClient;
 import ru.liga.client.registration.RegistrationClient;
 import ru.liga.domain.Profile;
 import ru.liga.domain.SexType;
 import ru.liga.domain.User;
 import ru.liga.domain.UserAuth;
+import ru.liga.handler.InputHandler;
 import ru.liga.service.BotMethodService;
 import ru.liga.service.KeyboardService;
+import ru.liga.service.TextMessageService;
 
-import java.util.ArrayList;
+import java.io.File;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,6 +37,9 @@ public class ProfileHandler implements InputHandler {
     private final KeyboardService keyboardService;
     private final UserSessionCache userSessionCache;
     private final BotMethodService botMethodService;
+    private final TextMessageService textMessageService;
+    private final ImageClient imageClient;
+    private final TranslatorClient translatorClient;
 
     @Override
     public BotState getBotState() {
@@ -50,15 +57,14 @@ public class ProfileHandler implements InputHandler {
         BotState currentBotState = userDetailsCache.getCurrentBotState(userId);
         User user = userDetailsCache.getUser(userId);
         Profile profile = user.getProfile();
-        SendMessage reply = new SendMessage();
-        reply.setChatId(callbackQuery.getMessage().getChatId().toString());
-        List<PartialBotApiMethod<?>> methods = new ArrayList<>();
 
         if (currentBotState == BotState.PROFILE_FILLING_ASK_GENDER) {
             SexType userSex = SexType.valueOf(callbackQuery.getData());
             profile.setSexType(userSex);
-            reply.setText(BotState.PROFILE_FILLING_ASK_DESCRIPTION.getMessage());
             userDetailsCache.changeUserState(userId, BotState.PROFILE_FILLING_ASK_DESCRIPTION);
+            return Collections.singletonList(botMethodService.getSendMessage(
+                    callbackQuery.getMessage().getChatId(),
+                    textMessageService.getText("reply.askDescription")));
         } else if (currentBotState == BotState.PROFILE_FILLING_ASK_LOOKING_FOR) {
             Set<SexType> lookingFor;
             try {
@@ -71,38 +77,44 @@ public class ProfileHandler implements InputHandler {
             String token = loginClient.login(new UserAuth(userId, user.getPassword()));
             userSessionCache.addTokenForUser(userId, token);
             userDetailsCache.changeUserState(userId, BotState.IN_MENU);
-            reply = botMethodService.getMenuMethod(callbackQuery.getMessage().getChatId());
-            methods.addAll(userDetailsCache.getMessagesToDelete(userId).stream()
+            Profile translatedProfile = translatorClient.getTranslatedProfile(profile);
+            File imageForProfile = imageClient.getImageForProfile(translatedProfile);
+            List<PartialBotApiMethod<?>> methods = userDetailsCache.getMessagesToDelete(userId).stream()
                     .map(i -> botMethodService.getDeleteMethod(callbackQuery.getMessage().getChatId(), i))
-                    .collect(Collectors.toList()));
+                    .collect(Collectors.toList());
+            methods.add(botMethodService.getSendPhotoMethod(imageForProfile,
+                    callbackQuery.getMessage().getChatId(),
+                    BotState.IN_MENU,
+                    translatedProfile.getCaption()));
+            return methods;
         }
-        methods.add(reply);
-        return methods;
+        return Collections.emptyList();
     }
 
     private List<PartialBotApiMethod<?>> processMessage(Message message) {
         Long userId = message.getFrom().getId();
+        Long chatId = message.getChatId();
         BotState currentBotState = userDetailsCache.getCurrentBotState(userId);
         User user = userDetailsCache.getUser(userId);
         Profile profile = user.getProfile();
-        String text = message.getText();
-        SendMessage reply = new SendMessage();
-        reply.setChatId(message.getChatId().toString());
-        List<PartialBotApiMethod<?>> methods = new ArrayList<>();
 
         if (currentBotState == BotState.PROFILE_FILLING_ASK_NAME) {
-            profile.setName(text);
-            reply.setText(BotState.PROFILE_FILLING_ASK_GENDER.getMessage());
-            reply.setReplyMarkup(keyboardService.getMySexKeyboard());
+            userDetailsCache.addMessageToDelete(userId, message.getMessageId());
+            profile.setName(message.getText());
             userDetailsCache.changeUserState(userId, BotState.PROFILE_FILLING_ASK_GENDER);
+            return Collections.singletonList(botMethodService.getSendMessage(
+                    chatId,
+                    textMessageService.getText("reply.askGender"),
+                    keyboardService.getMySexKeyboard()));
         } else if (currentBotState == BotState.PROFILE_FILLING_ASK_DESCRIPTION) {
-            profile.setDescription(text);
-            reply.setText(BotState.PROFILE_FILLING_ASK_LOOKING_FOR.getMessage());
-            reply.setReplyMarkup(keyboardService.getLookingForKeyboard());
+            userDetailsCache.addMessageToDelete(userId, message.getMessageId());
+            profile.setDescription(message.getText());
             userDetailsCache.changeUserState(userId, BotState.PROFILE_FILLING_ASK_LOOKING_FOR);
+            return Collections.singletonList(botMethodService.getSendMessage(
+                    chatId,
+                    textMessageService.getText("reply.askLookingFor"),
+                    keyboardService.getLookingForKeyboard()));
         }
-        userDetailsCache.addMessageToDelete(userId, message.getMessageId());
-        methods.add(reply);
-        return methods;
+        return Collections.singletonList(botMethodService.getDeleteMethod(chatId, message.getMessageId()));
     }
 }

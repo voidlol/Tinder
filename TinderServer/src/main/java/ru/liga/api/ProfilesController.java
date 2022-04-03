@@ -9,7 +9,7 @@ import java.util.Set;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/profile")  //http://localhost:8085/api/profile/
+@RequestMapping("/api/profile")
 public class ProfilesController {
 
     private final ProfileService profileService;
@@ -29,17 +29,6 @@ public class ProfilesController {
         return profileService.getUserApplication();
     }
 
-
-    @GetMapping("/weLike")
-    public Set<Profile> weLike() {
-        return profileService.weLike();
-    }
-
-    @GetMapping("/usLike")
-    public Set<Profile> usLike() {
-        return profileService.usLike();
-    }
-
     @GetMapping("/isReciprocity/{target}")
     public Boolean isReciprocity(@PathVariable Profile target) {
         return profileService.isReciprocity(target);
@@ -53,5 +42,10 @@ public class ProfilesController {
     @GetMapping("/favorites")
     public Set<Profile> getFavorites() {
         return profileService.getFavorites();
+    }
+
+    @GetMapping("/{target}/relation")
+    public String getRelation(@PathVariable Profile target) {
+        return profileService.getRelation(target);
     }
 }

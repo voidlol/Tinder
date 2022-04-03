@@ -10,11 +10,12 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.liga.botstate.BotState;
 import ru.liga.client.cache.UserDetailsCache;
 import ru.liga.client.profile.ImageClient;
-import ru.liga.client.profile.ProfileClient;
+import ru.liga.config.QueryData;
 import ru.liga.domain.Profile;
 import ru.liga.domain.ScrollingWrapper;
 import ru.liga.service.BotMethodService;
 import ru.liga.service.ProfileService;
+import ru.liga.service.TextMessageService;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,10 +31,11 @@ public class SearchingHandler implements InputHandler {
     private final ImageClient imageClient;
     private final ProfileService profileService;
     private final BotMethodService botMethodService;
+    private final TextMessageService textMessageService;
 
     @Override
     public List<PartialBotApiMethod<?>> handle(Message message) {
-        return Collections.emptyList();
+        return List.of(botMethodService.getDeleteMethod(message.getChatId(), message.getMessageId()));
     }
 
     @Override
@@ -45,15 +47,15 @@ public class SearchingHandler implements InputHandler {
         ScrollingWrapper scroller = userDetailsCache.getScroller(userId);
         List<PartialBotApiMethod<?>> methodsToExecute = new ArrayList<>();
 
-        if ("LIKE".equals(queryData)) {
+        if (QueryData.LIKE.equals(queryData)) {
             Profile currentProfile = scroller.getCurrentProfile();
             boolean isReciprocity = profileService.likeProfile(userId, currentProfile.getId());
             if (isReciprocity) {
-                methodsToExecute.add(botMethodService.getPopUpMethod(callbackQuery, "Вы любимы"));
+                methodsToExecute.add(botMethodService.getPopUpMethod(callbackQuery, textMessageService.getText("text.reciprocity")));
             }
             methodsToExecute.addAll(likeMethods(userId, scroller, callbackQuery));
             return methodsToExecute;
-        } else if ("NEXT".equals(queryData)) {
+        } else if (QueryData.NEXT.equals(queryData)) {
             return nextMethods(userId, scroller, callbackQuery);
         } else {
             methodsToExecute.add(botMethodService.getDeleteMethod(chatId, callbackQuery.getMessage().getMessageId()));
@@ -74,7 +76,7 @@ public class SearchingHandler implements InputHandler {
 
     private List<PartialBotApiMethod<?>> nextMethods(Long userId, ScrollingWrapper scroller, CallbackQuery callbackQuery) {
         if (scroller.getSize() == 1) {
-            return Collections.singletonList(botMethodService.getPopUpMethod(callbackQuery, "Это единственная анкета!"));
+            return Collections.singletonList(botMethodService.getPopUpMethod(callbackQuery, textMessageService.getText("text.only.profile")));
         }
         return getNextMethod(userId, scroller, callbackQuery);
     }
@@ -94,12 +96,12 @@ public class SearchingHandler implements InputHandler {
         }
         profileImage = imageClient.getImageForProfile(profile);
         return List.of(botMethodService.getDeleteMethod(callbackQuery.getMessage().getChatId(), callbackQuery.getMessage().getMessageId()),
-                botMethodService.getSendPhotoMethod(profileImage, callbackQuery.getMessage().getChatId(), BotState.SEARCHING, profile.getName()));
+                botMethodService.getSendPhotoMethod(profileImage, callbackQuery.getMessage().getChatId(), BotState.SEARCHING, profile.getCaption()));
     }
 
     private List<PartialBotApiMethod<?>> returnToMenu(Long userId, CallbackQuery callbackQuery) {
         List<PartialBotApiMethod<?>> methods = new ArrayList<>();
-        methods.add(botMethodService.getPopUpMethod(callbackQuery, "Не остлоась подходящих анкет :("));
+        methods.add(botMethodService.getPopUpMethod(callbackQuery, textMessageService.getText("text.no.search")));
         methods.add(botMethodService.getDeleteMethod(callbackQuery.getMessage().getChatId(), callbackQuery.getMessage().getMessageId()));
         methods.add(botMethodService.getMenuMethod(callbackQuery.getMessage().getChatId()));
         userDetailsCache.changeUserState(userId, BotState.IN_MENU);

@@ -6,11 +6,10 @@ import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageMedia;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
-import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import ru.liga.botstate.BotState;
 
 import java.io.File;
@@ -20,6 +19,7 @@ import java.io.File;
 public class BotMethodService {
 
     private final KeyboardService keyboardService;
+    private final TextMessageService textMessageService;
 
     public DeleteMessage getDeleteMethod(Long chatId, Integer messageId) {
         return new DeleteMessage(chatId.toString(), messageId);
@@ -42,22 +42,11 @@ public class BotMethodService {
         return answerCallbackQuery;
     }
 
-    public EditMessageMedia getEditMessageMediaMethod(File newPhoto, BotState nextState, CallbackQuery callbackQuery) {
-        EditMessageMedia editMessageMedia = new EditMessageMedia();
-        editMessageMedia.setChatId(callbackQuery.getMessage().getChatId().toString());
-        editMessageMedia.setMessageId(callbackQuery.getMessage().getMessageId());
-        editMessageMedia.setReplyMarkup(getKeyboard(nextState));
-        InputMediaPhoto inputMediaPhoto = new InputMediaPhoto();
-        inputMediaPhoto.setMedia(newPhoto, "profile_image");
-        editMessageMedia.setMedia(inputMediaPhoto);
-        return editMessageMedia;
-    }
-
     public SendMessage getMenuMethod(Long chatId) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId.toString());
         sendMessage.setReplyMarkup(getKeyboard(BotState.IN_MENU));
-        sendMessage.setText("МЕНЮ");
+        sendMessage.setText(textMessageService.getText("text.menu"));
         return sendMessage;
     }
 
@@ -68,11 +57,26 @@ public class BotMethodService {
         return sendMessage;
     }
 
+    public SendMessage getSendMessage(Long chatId, String text, ReplyKeyboardMarkup keyboardMarkup) {
+        SendMessage sendMessage = getSendMessage(chatId, text);
+        sendMessage.setReplyMarkup(keyboardMarkup);
+        return sendMessage;
+    }
+
+    public SendMessage getSendMessage(Long chatId, String text, InlineKeyboardMarkup keyboardMarkup) {
+        SendMessage sendMessage = getSendMessage(chatId, text);
+        sendMessage.setReplyMarkup(keyboardMarkup);
+        return sendMessage;
+    }
+
     private InlineKeyboardMarkup getKeyboard(BotState state) {
         switch (state) {
-            case SEARCHING: return keyboardService.getSearchingKeyboard();
-            case VIEWING: return keyboardService.getFavoritesKeyboard();
-            default: return keyboardService.getInMenuKeyboard();
+            case SEARCHING:
+                return keyboardService.getSearchingKeyboard();
+            case VIEWING:
+                return keyboardService.getFavoritesKeyboard();
+            default:
+                return keyboardService.getInMenuKeyboard();
         }
     }
 

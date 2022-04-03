@@ -1,22 +1,20 @@
 package ru.liga.client.registration;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import ru.liga.config.UsersConfig;
 
 @Component
+@RequiredArgsConstructor
 public class UserClient {
 
-    private final UsersConfig usersConfig;
     private final RestTemplate restTemplate;
-
-    public UserClient(UsersConfig usersConfig, RestTemplate restTemplate) {
-        this.usersConfig = usersConfig;
-        this.restTemplate = restTemplate;
-    }
+    @Value("${api.usersUrl}")
+    private String usersUrl;
 
     public boolean isUserExists(Long id) {
-        return restTemplate.getForObject(String.format(usersConfig.getUsersUrl(), id), Boolean.class);
+        return restTemplate.getForObject(String.format(usersUrl, id), Boolean.class);
     }
 
 }

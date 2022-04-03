@@ -1,4 +1,4 @@
-package ru.liga.handler;
+package ru.liga.handler.authorization;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -10,7 +10,9 @@ import ru.liga.client.cache.UserDetailsCache;
 import ru.liga.client.cache.UserSessionCache;
 import ru.liga.client.login.LoginClient;
 import ru.liga.domain.UserAuth;
+import ru.liga.handler.InputHandler;
 import ru.liga.service.BotMethodService;
+import ru.liga.service.TextMessageService;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +27,7 @@ public class LoginHandler implements InputHandler {
     private final UserSessionCache userSessionCache;
     private final UserDetailsCache userDetailsCache;
     private final BotMethodService botMethodService;
+    private final TextMessageService textMessageService;
 
     @Override
     public List<PartialBotApiMethod<?>> handle(Message message) {
@@ -52,7 +55,7 @@ public class LoginHandler implements InputHandler {
             userDetailsCache.changeUserState(userId, BotState.IN_MENU);
             methods.add(botMethodService.getMenuMethod(message.getChatId()));
         } else {
-            methods.add(botMethodService.getSendMessage(message.getChatId(), "Неверный пароль! Попробуйте еще раз"));
+            methods.add(botMethodService.getSendMessage(message.getChatId(), textMessageService.getText("reply.invalidPassword")));
         }
         return methods;
     }

@@ -1,4 +1,4 @@
-package ru.liga.handler;
+package ru.liga.handler.authorization;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -10,6 +10,8 @@ import ru.liga.botstate.BotState;
 import ru.liga.client.cache.UserDetailsCache;
 import ru.liga.domain.Profile;
 import ru.liga.domain.User;
+import ru.liga.handler.InputHandler;
+import ru.liga.service.TextMessageService;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +21,7 @@ import java.util.List;
 public class RegistrationHandler implements InputHandler {
 
     private final UserDetailsCache userDetailsCache;
-    private static final String NOT_MATCHING_PASSWORDS = "Password doesnt match!\nEnter new password:";
+    private final TextMessageService textMessageService;
 
     @Override
     public List<PartialBotApiMethod<?>> handle(Message message) {
@@ -47,17 +49,17 @@ public class RegistrationHandler implements InputHandler {
             newUser.setId(userId);
             newUser.setPassword(message.getText());
             userDetailsCache.saveUser(newUser);
-            reply.setText(BotState.REGISTER_ASK_CONF_PASSWORD.getMessage());
+            reply.setText(textMessageService.getText("reply.confPassword"));
             userDetailsCache.changeUserState(userId, BotState.REGISTER_ASK_CONF_PASSWORD);
         } else if (currentBotState == BotState.REGISTER_ASK_CONF_PASSWORD) {
             String oldPassword = newUser.getPassword();
             String currentPassword = message.getText();
             if (!oldPassword.equals(currentPassword)) {
-                reply.setText(NOT_MATCHING_PASSWORDS);
+                reply.setText(textMessageService.getText("reply.passwordDoesntMatch"));
                 userDetailsCache.changeUserState(userId, BotState.REGISTER_ASK_PASSWORD);
             } else {
                 newUser.setProfile(new Profile());
-                reply.setText(BotState.PROFILE_FILLING_ASK_NAME.getMessage());
+                reply.setText(textMessageService.getText("reply.askName"));
                 userDetailsCache.changeUserState(userId, BotState.PROFILE_FILLING_ASK_NAME);
             }
         }

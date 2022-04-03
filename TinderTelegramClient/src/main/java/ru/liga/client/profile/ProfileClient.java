@@ -14,4 +14,6 @@ public interface ProfileClient {
     List<Profile> getFavorites(Long userId);
 
     void unlikeProfile(Long userId, Long profileId);
+
+    String getRelation(Long userId, Long profileId);
 }

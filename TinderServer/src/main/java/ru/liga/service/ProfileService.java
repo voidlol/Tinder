@@ -3,6 +3,7 @@ package ru.liga.service;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.liga.domain.Profile;
+import ru.liga.domain.SexType;
 import ru.liga.domain.User;
 import ru.liga.repo.ApplicationRepository;
 
@@ -21,12 +22,6 @@ public class ProfileService {
         User current = userService.getCurrentUser();
         current.getProfile().getWeLike().add(target);
         applicationRepository.save(current.getProfile());
-    }
-
-
-    public Set<Profile> weLike() {
-        User current = userService.getCurrentUser();
-        return current.getProfile().getWeLike();
     }
 
     public Profile getUserApplication() {
@@ -51,15 +46,27 @@ public class ProfileService {
         applicationRepository.save(current.getProfile());
     }
 
-    public Set<Profile> usLike() {
-        User currentUser = userService.getCurrentUser();
-        return currentUser.getProfile().getWhoLikedMe();
-    }
-
     public Set<Profile> getFavorites() {
         User currentUser = userService.getCurrentUser();
         Set<Profile> weLike = currentUser.getProfile().getWeLike();
         Set<Profile> whoLikedMe = currentUser.getProfile().getWhoLikedMe();
         return Stream.concat(whoLikedMe.stream(), weLike.stream()).collect(Collectors.toSet());
+    }
+
+    public String getRelation(Profile target) {
+        User currentUser = userService.getCurrentUser();
+        Profile profile = currentUser.getProfile();
+        if (profile.getWeLike().contains(target) && target.getWeLike().contains(profile)) {
+            return "Взаимоность";
+        } else if (profile.getWeLike().contains(target)) {
+            if (target.getSexType() == SexType.MALE) {
+                return "Любим вами";
+            } else {
+                return "Любима вами";
+            }
+        } else if (target.getWeLike().contains(profile)) {
+            return "Любимы";
+        }
+        return "";
     }
 }

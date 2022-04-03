@@ -1,23 +1,24 @@
 package ru.liga.client.profile;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import ru.liga.domain.Profile;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ImageClient {
 
     private final RestTemplate restTemplate;
+    @Value("${api.imageUrl}")
+    private String imageUrl;
 
     public File getImageForProfile(Profile profile) {
         HttpEntity<Profile> httpEntity = new HttpEntity<>(profile);
-        return restTemplate.postForObject("http://localhost:8085/api/image/", httpEntity, File.class);
+        return restTemplate.postForObject(imageUrl, httpEntity, File.class);
     }
 }

@@ -40,7 +40,7 @@ public class UserDetailsCache {
     }
 
     public BotState getCurrentBotState(Long id) {
-        return userState.getOrDefault(id, null);
+        return userState.getOrDefault(id, BotState.INIT);
     }
 
     public void changeUserState(Long id, BotState state) {
