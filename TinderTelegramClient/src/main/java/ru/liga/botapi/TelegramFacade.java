@@ -2,23 +2,24 @@ package ru.liga.botapi;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.liga.botstate.BotState;
 import ru.liga.client.cache.UserDetailsCache;
-import ru.liga.client.cache.UserSessionCache;
+import ru.liga.service.BotMethodService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Component
 public class TelegramFacade {
 
     private final BotStateContext botStateContext;
+    private final BotMethodService botMethodService;
     private final UserDetailsCache userDetailsCache;
 
     public List<PartialBotApiMethod<?>> handleUpdate(Update update) {
@@ -39,10 +40,14 @@ public class TelegramFacade {
         String inputText = message.getText();
         long userId = message.getFrom().getId();
         BotState botState = userDetailsCache.getCurrentBotState(userId);
-        System.out.println(inputText + " " + botState);
-
-        if (botState == null && inputText.equals("/start")) {
+        if (inputText.equals("/start")) {
             botState = BotState.ROOT_MENU;
+            List<PartialBotApiMethod<?>> methods = userDetailsCache.getMessagesToDelete(userId).stream()
+                    .map(i -> botMethodService.getDeleteMethod(message.getChatId(), i))
+                    .collect(Collectors.toList());
+            methods.add(botMethodService.getDeleteMethod(message.getChatId(), message.getMessageId()));
+            methods.addAll(botStateContext.processInputMessage(botState, message));
+            return methods;
         }
         return botStateContext.processInputMessage(botState, message);
     }

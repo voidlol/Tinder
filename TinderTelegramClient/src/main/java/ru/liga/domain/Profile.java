@@ -1,14 +1,11 @@
 package ru.liga.domain;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.ToString;
 
 import java.util.Set;
 
-@Setter
-@Getter
-@ToString
+@Data
 public class Profile {
 
     @ToString.Exclude

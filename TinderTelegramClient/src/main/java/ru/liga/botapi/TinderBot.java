@@ -1,6 +1,7 @@
 package ru.liga.botapi;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -11,11 +12,18 @@ import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageMedia;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import ru.liga.botstate.BotState;
+import ru.liga.client.cache.UserDetailsCache;
+
+import java.util.Collections;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class TinderBot extends TelegramLongPollingBot {
 
     @Value("${bot.userName}")
@@ -24,6 +32,7 @@ public class TinderBot extends TelegramLongPollingBot {
     @Value("${bot.botToken}")
     private String botToken;
     private final TelegramFacade telegramFacade;
+    private final UserDetailsCache userDetailsCache;
 
     @Override
     public String getBotUsername() {
@@ -38,21 +47,38 @@ public class TinderBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         for (PartialBotApiMethod<?> method : telegramFacade.handleUpdate(update)) {
-            executeAnyMethod(method);
+            addMessageToDelete(executeAnyMethod(method));
         }
     }
 
-    public void executeAnyMethod(PartialBotApiMethod<?> method) {
+    private void addMessageToDelete(Message message) {
+        if (message != null) {
+            BotState currentBotState = userDetailsCache.getCurrentBotState(message.getChatId());
+            switch (currentBotState) {
+                case IN_MENU:
+                case SEARCHING:
+                case VIEWING:
+                    userDetailsCache.setMessagesToDelete(message.getChatId(), Set.of(message.getMessageId()));
+                    break;
+                default:
+                    userDetailsCache.addMessageToDelete(message.getChatId(), message.getMessageId());
+            }
+        }
+    }
+
+    private Message executeAnyMethod(PartialBotApiMethod<?> method) {
         try {
-            if (method == null) return;
-            else if (method instanceof SendPhoto) execute((SendPhoto) method);
+            if (method == null) return null;
+            else if (method instanceof SendPhoto) return execute((SendPhoto) method);
             else if (method instanceof DeleteMessage) execute((DeleteMessage) method);
             else if (method instanceof AnswerCallbackQuery) execute((AnswerCallbackQuery) method);
-            else if (method instanceof SendMessage) execute((SendMessage) method);
+            else if (method instanceof SendMessage) return execute((SendMessage) method);
             else if (method instanceof EditMessageText) execute((EditMessageText) method);
             else if (method instanceof EditMessageMedia) execute((EditMessageMedia) method);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.info(e.getMessage());
+
         }
+        return null;
     }
 }

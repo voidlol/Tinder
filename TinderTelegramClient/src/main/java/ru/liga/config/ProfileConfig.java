@@ -28,4 +28,12 @@ public class ProfileConfig {
     public String getWeLikeUrl() {
         return profileUrl + weLike;
     }
+
+    public String getUsLikeUrl() {
+        return profileUrl + "/usLike";
+    }
+
+    public String getFavoritesUrl() {
+        return profileUrl + "/favorites";
+    }
 }

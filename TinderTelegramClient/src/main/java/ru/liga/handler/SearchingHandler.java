@@ -1,5 +1,6 @@
 package ru.liga.handler;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -32,7 +33,7 @@ public class SearchingHandler implements InputHandler {
 
     @Override
     public List<PartialBotApiMethod<?>> handle(Message message) {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -64,28 +65,22 @@ public class SearchingHandler implements InputHandler {
     }
 
     private List<PartialBotApiMethod<?>> likeMethods(Long userId, ScrollingWrapper scroller, CallbackQuery callbackQuery) {
-        File profileImage;
         if (scroller.getSize() == 1 && scroller.isLast()) {
             return returnToMenu(userId, callbackQuery);
-        } else if (scroller.isLast()) {
-            scroller = new ScrollingWrapper(profileService.getValidProfiles(userId));
-            if (scroller.isEmpty()) {
-                return returnToMenu(userId, callbackQuery);
-            }
-            userDetailsCache.addScroller(userId, scroller);
-            Profile profile = scroller.getCurrentProfile();
-            profileImage = imageClient.getImageForProfile(profile);
         } else {
-            Profile profile = scroller.getNextProfile();
-            profileImage = imageClient.getImageForProfile(profile);
+            return getNextMethod(userId, scroller, callbackQuery);
         }
-        return Collections.singletonList(botMethodService.getEditMessageMediaMethod(profileImage, BotState.SEARCHING, callbackQuery));
     }
 
     private List<PartialBotApiMethod<?>> nextMethods(Long userId, ScrollingWrapper scroller, CallbackQuery callbackQuery) {
         if (scroller.getSize() == 1) {
-            return Collections.emptyList();
+            return Collections.singletonList(botMethodService.getPopUpMethod(callbackQuery, "Это единственная анкета!"));
         }
+        return getNextMethod(userId, scroller, callbackQuery);
+    }
+
+    private List<PartialBotApiMethod<?>> getNextMethod(Long userId, ScrollingWrapper scroller, CallbackQuery callbackQuery) {
+        Profile profile;
         File profileImage;
         if (scroller.isLast()) {
             scroller = new ScrollingWrapper(profileService.getValidProfiles(userId));
@@ -93,13 +88,13 @@ public class SearchingHandler implements InputHandler {
                 return returnToMenu(userId, callbackQuery);
             }
             userDetailsCache.addScroller(userId, scroller);
-            Profile currentProfile = scroller.getCurrentProfile();
-            profileImage = imageClient.getImageForProfile(currentProfile);
+            profile = scroller.getCurrentProfile();
         } else {
-            Profile currentProfile = scroller.getNextProfile();
-            profileImage = imageClient.getImageForProfile(currentProfile);
+            profile = scroller.getNextProfile();
         }
-        return Collections.singletonList(botMethodService.getEditMessageMediaMethod(profileImage, BotState.SEARCHING, callbackQuery));
+        profileImage = imageClient.getImageForProfile(profile);
+        return List.of(botMethodService.getDeleteMethod(callbackQuery.getMessage().getChatId(), callbackQuery.getMessage().getMessageId()),
+                botMethodService.getSendPhotoMethod(profileImage, callbackQuery.getMessage().getChatId(), BotState.SEARCHING, profile.getName()));
     }
 
     private List<PartialBotApiMethod<?>> returnToMenu(Long userId, CallbackQuery callbackQuery) {
@@ -117,4 +112,11 @@ public class SearchingHandler implements InputHandler {
         return BotState.SEARCHING;
     }
 
+
+    @Getter
+    @RequiredArgsConstructor
+    static class MessageData {
+        private final File profileImage;
+        private final Profile profile;
+    }
 }

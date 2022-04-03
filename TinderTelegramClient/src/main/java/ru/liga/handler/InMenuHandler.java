@@ -8,8 +8,6 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.liga.botstate.BotState;
 import ru.liga.client.cache.UserDetailsCache;
 import ru.liga.client.profile.ImageClient;
-import ru.liga.client.profile.ProfileClient;
-import ru.liga.client.profile.TranslatorClient;
 import ru.liga.domain.Profile;
 import ru.liga.domain.ScrollingWrapper;
 import ru.liga.service.BotMethodService;
@@ -31,7 +29,7 @@ public class InMenuHandler implements InputHandler {
 
     @Override
     public List<PartialBotApiMethod<?>> handle(Message message) {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -49,7 +47,7 @@ public class InMenuHandler implements InputHandler {
                 Profile userProfile = profileService.getUserProfile(userId);
                 File imageForProfile = imageClient.getImageForProfile(userProfile);
                 return List.of(botMethodService.getDeleteMethod(chatId, callbackQuery.getMessage().getMessageId()),
-                        botMethodService.getSendPhotoMethod(imageForProfile, chatId, BotState.IN_MENU));
+                        botMethodService.getSendPhotoMethod(imageForProfile, chatId, BotState.IN_MENU, userProfile.getName()));
         }
     }
 
@@ -64,7 +62,7 @@ public class InMenuHandler implements InputHandler {
         userDetailsCache.addScroller(callbackQuery.getFrom().getId(), searchScroller);
         Profile currentProfile = searchScroller.getCurrentProfile();
         File imageForProfile = imageClient.getImageForProfile(currentProfile);
-        methods.add(botMethodService.getSendPhotoMethod(imageForProfile, callbackQuery.getMessage().getChatId(), targetState));
+        methods.add(botMethodService.getSendPhotoMethod(imageForProfile, callbackQuery.getMessage().getChatId(), targetState, currentProfile.getName()));
         userDetailsCache.changeUserState(callbackQuery.getFrom().getId(), targetState);
         return methods;
     }

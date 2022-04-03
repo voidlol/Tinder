@@ -25,11 +25,12 @@ public class BotMethodService {
         return new DeleteMessage(chatId.toString(), messageId);
     }
 
-    public SendPhoto getSendPhotoMethod(File photo, Long chatId, BotState targetState) {
+    public SendPhoto getSendPhotoMethod(File photo, Long chatId, BotState targetState, String caption) {
         SendPhoto sendPhoto = new SendPhoto();
         sendPhoto.setPhoto(new InputFile(photo));
         sendPhoto.setChatId(chatId.toString());
         sendPhoto.setReplyMarkup(getKeyboard(targetState));
+        sendPhoto.setCaption(caption);
         return sendPhoto;
     }
 

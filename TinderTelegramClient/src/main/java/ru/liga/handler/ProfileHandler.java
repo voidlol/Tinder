@@ -17,11 +17,11 @@ import ru.liga.domain.User;
 import ru.liga.domain.UserAuth;
 import ru.liga.service.BotMethodService;
 import ru.liga.service.KeyboardService;
-import ru.liga.service.ProfileService;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 @AllArgsConstructor
@@ -72,6 +72,9 @@ public class ProfileHandler implements InputHandler {
             userSessionCache.addTokenForUser(userId, token);
             userDetailsCache.changeUserState(userId, BotState.IN_MENU);
             reply = botMethodService.getMenuMethod(callbackQuery.getMessage().getChatId());
+            methods.addAll(userDetailsCache.getMessagesToDelete(userId).stream()
+                    .map(i -> botMethodService.getDeleteMethod(callbackQuery.getMessage().getChatId(), i))
+                    .collect(Collectors.toList()));
         }
         methods.add(reply);
         return methods;
@@ -87,20 +90,18 @@ public class ProfileHandler implements InputHandler {
         reply.setChatId(message.getChatId().toString());
         List<PartialBotApiMethod<?>> methods = new ArrayList<>();
 
-        switch (currentBotState) {
-            case PROFILE_FILLING_ASK_NAME:
-                profile.setName(text);
-                reply.setText(BotState.PROFILE_FILLING_ASK_GENDER.getMessage());
-                reply.setReplyMarkup(keyboardService.getMySexKeyboard());
-                userDetailsCache.changeUserState(userId, BotState.PROFILE_FILLING_ASK_GENDER);
-                break;
-            case PROFILE_FILLING_ASK_DESCRIPTION:
-                profile.setDescription(text);
-                reply.setText(BotState.PROFILE_FILLING_ASK_LOOKING_FOR.getMessage());
-                reply.setReplyMarkup(keyboardService.getLookingForKeyboard());
-                userDetailsCache.changeUserState(userId, BotState.PROFILE_FILLING_ASK_LOOKING_FOR);
-                break;
+        if (currentBotState == BotState.PROFILE_FILLING_ASK_NAME) {
+            profile.setName(text);
+            reply.setText(BotState.PROFILE_FILLING_ASK_GENDER.getMessage());
+            reply.setReplyMarkup(keyboardService.getMySexKeyboard());
+            userDetailsCache.changeUserState(userId, BotState.PROFILE_FILLING_ASK_GENDER);
+        } else if (currentBotState == BotState.PROFILE_FILLING_ASK_DESCRIPTION) {
+            profile.setDescription(text);
+            reply.setText(BotState.PROFILE_FILLING_ASK_LOOKING_FOR.getMessage());
+            reply.setReplyMarkup(keyboardService.getLookingForKeyboard());
+            userDetailsCache.changeUserState(userId, BotState.PROFILE_FILLING_ASK_LOOKING_FOR);
         }
+        userDetailsCache.addMessageToDelete(userId, message.getMessageId());
         methods.add(reply);
         return methods;
     }

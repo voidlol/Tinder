@@ -35,6 +35,11 @@ public class ProfilesController {
         return profileService.weLike();
     }
 
+    @GetMapping("/usLike")
+    public Set<Profile> usLike() {
+        return profileService.usLike();
+    }
+
     @GetMapping("/isReciprocity/{target}")
     public Boolean isReciprocity(@PathVariable Profile target) {
         return profileService.isReciprocity(target);
@@ -43,5 +48,10 @@ public class ProfilesController {
     @GetMapping("/search")
     public Set<Profile> searchList() {
         return profileService.searchList();
+    }
+
+    @GetMapping("/favorites")
+    public Set<Profile> getFavorites() {
+        return profileService.getFavorites();
     }
 }

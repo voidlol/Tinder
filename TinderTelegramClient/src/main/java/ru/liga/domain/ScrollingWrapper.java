@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 @Slf4j
 public class ScrollingWrapper {
@@ -34,5 +33,18 @@ public class ScrollingWrapper {
 
     public boolean isEmpty() {
         return listToScroll.isEmpty();
+    }
+
+    public boolean isFirst() {
+        return currentIndex == 0;
+    }
+
+    public Profile getPrevProfile() {
+        return listToScroll.get(--currentIndex);
+    }
+
+    public Profile getLastProfile() {
+        currentIndex = listToScroll.size() - 1;
+        return listToScroll.get(currentIndex);
     }
 }

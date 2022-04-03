@@ -7,6 +7,8 @@ import ru.liga.domain.User;
 import ru.liga.repo.ApplicationRepository;
 
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @AllArgsConstructor
 @Service
@@ -47,5 +49,17 @@ public class ProfileService {
         User current = userService.getCurrentUser();
         current.getProfile().getWeLike().remove(target);
         applicationRepository.save(current.getProfile());
+    }
+
+    public Set<Profile> usLike() {
+        User currentUser = userService.getCurrentUser();
+        return currentUser.getProfile().getWhoLikedMe();
+    }
+
+    public Set<Profile> getFavorites() {
+        User currentUser = userService.getCurrentUser();
+        Set<Profile> weLike = currentUser.getProfile().getWeLike();
+        Set<Profile> whoLikedMe = currentUser.getProfile().getWhoLikedMe();
+        return Stream.concat(whoLikedMe.stream(), weLike.stream()).collect(Collectors.toSet());
     }
 }

@@ -13,7 +13,9 @@ import ru.liga.domain.UserAuth;
 import ru.liga.service.BotMethodService;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @AllArgsConstructor
@@ -31,7 +33,7 @@ public class LoginHandler implements InputHandler {
 
     @Override
     public List<PartialBotApiMethod<?>> handleCallBack(CallbackQuery callbackQuery) {
-        return null;
+        return Collections.emptyList();
     }
 
     private List<PartialBotApiMethod<?>> processInputMessage(Message message) {
@@ -41,6 +43,11 @@ public class LoginHandler implements InputHandler {
 
         String token = loginClient.login(new UserAuth(userId, password));
         if (!token.equals("Wrong password")) {
+            userDetailsCache.addMessageToDelete(userId, message.getMessageId());
+            List<PartialBotApiMethod<?>> collect = userDetailsCache.getMessagesToDelete(userId).stream()
+                    .map(i -> botMethodService.getDeleteMethod(message.getChatId(), i))
+                    .collect(Collectors.toList());
+            methods.addAll(collect);
             userSessionCache.addTokenForUser(userId, token);
             userDetailsCache.changeUserState(userId, BotState.IN_MENU);
             methods.add(botMethodService.getMenuMethod(message.getChatId()));

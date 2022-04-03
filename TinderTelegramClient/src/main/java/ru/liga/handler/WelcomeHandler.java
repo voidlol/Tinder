@@ -2,7 +2,6 @@ package ru.liga.handler;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -21,7 +20,6 @@ public class WelcomeHandler implements InputHandler {
 
     private final UserDetailsCache userDetailsCache;
     private final KeyboardService keyboardService;
-    private final RestTemplate restTemplate;
 
     @Override
     public List<PartialBotApiMethod<?>> handle(Message message) {
@@ -30,7 +28,7 @@ public class WelcomeHandler implements InputHandler {
 
     @Override
     public List<PartialBotApiMethod<?>> handleCallBack(CallbackQuery callbackQuery) {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -56,6 +54,7 @@ public class WelcomeHandler implements InputHandler {
                 userDetailsCache.changeUserState(userId, BotState.REGISTER_ASK_PASSWORD);
             }
         }
+        userDetailsCache.addMessageToDelete(userId, message.getMessageId());
         return Collections.singletonList(reply);
     }
 }

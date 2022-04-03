@@ -19,7 +19,7 @@ import java.util.List;
 public class RegistrationHandler implements InputHandler {
 
     private final UserDetailsCache userDetailsCache;
-    private static final String NOT_MATHCING_PASSWORDS = "Password doesnt match!\nEnter new password:";
+    private static final String NOT_MATCHING_PASSWORDS = "Password doesnt match!\nEnter new password:";
 
     @Override
     public List<PartialBotApiMethod<?>> handle(Message message) {
@@ -28,7 +28,7 @@ public class RegistrationHandler implements InputHandler {
 
     @Override
     public List<PartialBotApiMethod<?>> handleCallBack(CallbackQuery callbackQuery) {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -43,28 +43,25 @@ public class RegistrationHandler implements InputHandler {
         reply.setChatId(message.getChatId().toString());
         User newUser = userDetailsCache.getUser(userId);
 
-        switch (currentBotState) {
-            case REGISTER_ASK_PASSWORD:
-                newUser.setId(userId);
-                newUser.setPassword(message.getText());
-                userDetailsCache.saveUser(newUser);
-                reply.setText(BotState.REGISTER_ASK_CONF_PASSWORD.getMessage());
-                userDetailsCache.changeUserState(userId, BotState.REGISTER_ASK_CONF_PASSWORD);
-                break;
-            case REGISTER_ASK_CONF_PASSWORD:
-                String oldPassword = newUser.getPassword();
-                String currentPassword = message.getText();
-                if (!oldPassword.equals(currentPassword)) {
-                    reply.setText(NOT_MATHCING_PASSWORDS);
-                    userDetailsCache.changeUserState(userId, BotState.REGISTER_ASK_PASSWORD);
-                } else {
-                    newUser.setProfile(new Profile());
-                    reply.setText(BotState.PROFILE_FILLING_ASK_NAME.getMessage());
-                    userDetailsCache.changeUserState(userId, BotState.PROFILE_FILLING_ASK_NAME);
-                }
-
-                break;
+        if (currentBotState == BotState.REGISTER_ASK_PASSWORD) {
+            newUser.setId(userId);
+            newUser.setPassword(message.getText());
+            userDetailsCache.saveUser(newUser);
+            reply.setText(BotState.REGISTER_ASK_CONF_PASSWORD.getMessage());
+            userDetailsCache.changeUserState(userId, BotState.REGISTER_ASK_CONF_PASSWORD);
+        } else if (currentBotState == BotState.REGISTER_ASK_CONF_PASSWORD) {
+            String oldPassword = newUser.getPassword();
+            String currentPassword = message.getText();
+            if (!oldPassword.equals(currentPassword)) {
+                reply.setText(NOT_MATCHING_PASSWORDS);
+                userDetailsCache.changeUserState(userId, BotState.REGISTER_ASK_PASSWORD);
+            } else {
+                newUser.setProfile(new Profile());
+                reply.setText(BotState.PROFILE_FILLING_ASK_NAME.getMessage());
+                userDetailsCache.changeUserState(userId, BotState.PROFILE_FILLING_ASK_NAME);
+            }
         }
+        userDetailsCache.addMessageToDelete(userId, message.getMessageId());
         return Collections.singletonList(reply);
     }
 }

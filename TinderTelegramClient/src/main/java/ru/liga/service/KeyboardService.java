@@ -66,27 +66,31 @@ public class KeyboardService {
         return keyboard;
     }
 
-    private List<List<InlineKeyboardButton>> getScrollKeyboard(String lastButtonText, String lastButtonData) {
+    public InlineKeyboardMarkup getSearchingKeyboard() {
         InlineKeyboardButton nextButton = createInlineButton("Следующая", "NEXT");
         InlineKeyboardButton menuButton = createInlineButton("В меню", "MENU");
-        InlineKeyboardButton likeButton = createInlineButton(lastButtonText, lastButtonData);
+        InlineKeyboardButton likeButton = createInlineButton("Лайкнуть", "LIKE");
 
         List<InlineKeyboardButton> buttonsRow = createInlineButtonsRow(nextButton, menuButton, likeButton);
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         keyboard.add(buttonsRow);
-        return keyboard;
-    }
-
-    public InlineKeyboardMarkup getSearchingKeyboard() {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        inlineKeyboardMarkup.setKeyboard(getScrollKeyboard("Лайкнуть", "LIKE"));
-
+        inlineKeyboardMarkup.setKeyboard(keyboard);
         return inlineKeyboardMarkup;
     }
 
+
     public InlineKeyboardMarkup getFavoritesKeyboard() {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        inlineKeyboardMarkup.setKeyboard(getScrollKeyboard("Убрать лайк", "DISLIKE"));
+        InlineKeyboardButton prevButton = createInlineButton("Предыдущая", "PREV");
+        InlineKeyboardButton nextButton = createInlineButton("Следующая", "NEXT");
+        InlineKeyboardButton menuButton = createInlineButton("В меню", "MENU");
+        InlineKeyboardButton dislikeButton = createInlineButton("Убрать лайк", "DISLIKE");
+
+        List<InlineKeyboardButton> buttonsRow = createInlineButtonsRow(prevButton, nextButton, menuButton, dislikeButton);
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        keyboard.add(buttonsRow);
+        inlineKeyboardMarkup.setKeyboard(keyboard);
 
         return inlineKeyboardMarkup;
     }

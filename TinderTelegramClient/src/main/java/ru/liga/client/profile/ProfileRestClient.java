@@ -14,7 +14,7 @@ import java.util.List;
 
 @AllArgsConstructor
 @Component
-public class ProfileClientImpl implements ProfileClient {
+public class ProfileRestClient implements ProfileClient {
 
     private final RestTemplate restTemplate;
     private final ProfileConfig profileConfig;
@@ -44,8 +44,8 @@ public class ProfileClientImpl implements ProfileClient {
     @Override
     public List<Profile> getFavorites(Long userId) {
         HttpEntity<Void> requestEntity = authorizationService.getEntityWithAuthorizationHeader(userId);
-        ResponseEntity<Profile[]> exchange = restTemplate.exchange(profileConfig.getWeLikeUrl(), HttpMethod.GET, requestEntity, Profile[].class);
-        return List.of(exchange.getBody());
+        ResponseEntity<Profile[]> favorites = restTemplate.exchange(profileConfig.getFavoritesUrl(), HttpMethod.GET, requestEntity, Profile[].class);
+        return List.of(favorites.getBody());
     }
 
     @Override
