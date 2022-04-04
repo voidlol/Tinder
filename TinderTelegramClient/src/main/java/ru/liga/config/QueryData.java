@@ -11,6 +11,7 @@ public class QueryData {
     public static final String PREV = "PREV";
     public static final String MENU = "MENU";
     public static final String ALL = "ALL";
+    public static final String LOGOUT = "LOGOUT";
 
     private QueryData() {}
 }

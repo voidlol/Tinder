@@ -62,4 +62,9 @@ public class UserDetailsCache {
     public void setMessagesToDelete(Long id, Set<Integer> messages) {
         messagesToDelete.put(id, messages);
     }
+
+    public void clearUserCache(Long userId) {
+        userAccounts.remove(userId);
+        userScrollers.remove(userId);
+    }
 }

@@ -5,4 +5,6 @@ public interface UserSessionCache {
     String getTokenForUser(Long id);
 
     void addTokenForUser(Long id, String token);
+
+    void clearUserCache(Long id);
 }

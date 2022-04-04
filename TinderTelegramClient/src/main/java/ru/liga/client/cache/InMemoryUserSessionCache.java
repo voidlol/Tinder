@@ -20,4 +20,9 @@ public class InMemoryUserSessionCache implements UserSessionCache {
     public void addTokenForUser(Long id, String token) {
         tokens.put(id, token);
     }
+
+    @Override
+    public void clearUserCache(Long id) {
+        tokens.remove(id);
+    }
 }

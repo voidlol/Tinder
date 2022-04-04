@@ -6,6 +6,7 @@ import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.liga.botstate.BotState;
+import ru.liga.client.cache.InMemoryUserSessionCache;
 import ru.liga.client.cache.UserDetailsCache;
 import ru.liga.client.profile.ImageClient;
 import ru.liga.config.QueryData;
@@ -13,6 +14,7 @@ import ru.liga.domain.Profile;
 import ru.liga.domain.ScrollingWrapper;
 import ru.liga.handler.InputHandler;
 import ru.liga.service.BotMethodService;
+import ru.liga.service.KeyboardService;
 import ru.liga.service.ProfileService;
 import ru.liga.service.TextMessageService;
 
@@ -20,6 +22,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -28,6 +31,8 @@ public class InMenuHandler implements InputHandler {
     private final UserDetailsCache userDetailsCache;
     private final ImageClient imageClient;
     private final BotMethodService botMethodService;
+    private final InMemoryUserSessionCache inMemoryUserSessionCache;
+    private final KeyboardService keyboardService;
     private final ProfileService profileService;
     private final TextMessageService textMessageService;
 
@@ -47,6 +52,8 @@ public class InMenuHandler implements InputHandler {
                 return getReply(profileService.getValidProfiles(userId), BotState.SEARCHING, callbackQuery);
             case QueryData.FAVORITES:
                 return getReply(profileService.getFavorites(userId), BotState.VIEWING, callbackQuery);
+            case QueryData.LOGOUT:
+                return logout(callbackQuery);
             default:
                 Profile userProfile = profileService.getUserProfile(userId);
                 File imageForProfile = imageClient.getImageForProfile(userProfile);
@@ -85,6 +92,20 @@ public class InMenuHandler implements InputHandler {
     @Override
     public BotState getBotState() {
         return BotState.IN_MENU;
+    }
+
+    private List<PartialBotApiMethod<?>> logout(CallbackQuery callbackQuery) {
+        userDetailsCache.changeUserState(callbackQuery.getFrom().getId(), BotState.INIT);
+        userDetailsCache.clearUserCache(callbackQuery.getFrom().getId());
+        inMemoryUserSessionCache.clearUserCache(callbackQuery.getFrom().getId());
+        List<PartialBotApiMethod<?>> methods = userDetailsCache.getMessagesToDelete(callbackQuery.getFrom().getId()).stream()
+                .map(i -> botMethodService.getDeleteMethod(callbackQuery.getMessage().getChatId(), i))
+                .collect(Collectors.toList());
+        methods.add(botMethodService.getSendMessage(callbackQuery.getMessage().getChatId(),
+                textMessageService.getText("reply.logout"),
+                keyboardService.getInitKeyboard()));
+        return methods;
+
     }
 
 }
