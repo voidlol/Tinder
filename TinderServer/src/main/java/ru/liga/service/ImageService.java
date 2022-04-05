@@ -80,10 +80,11 @@ public class ImageService {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < words.length; ) {
             sb.append(words[i++]);
-            do  {
+            while (((i < words.length) && (fontMetrics.stringWidth(sb + " " + words[i]) < maxLineWidth))) {
                 sb.append(" ");
                 sb.append(words[i++]);
-            } while (((i < words.length) && (fontMetrics.stringWidth(sb.toString()) < maxLineWidth)));
+            }
+
             if (fontMetrics.getFont().equals(header)) {
                 fontMetrics = graphics.getFontMetrics(body);
             }
