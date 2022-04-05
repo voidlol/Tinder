@@ -28,6 +28,7 @@ public class TinderBot extends TelegramLongPollingBot {
 
     @Value("${botToken}")
     private String botToken;
+
     private final TelegramFacade telegramFacade;
     private final UserDetailsCache userDetailsCache;
 
